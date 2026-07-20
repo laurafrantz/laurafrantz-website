@@ -38,7 +38,7 @@
   {{- $jw := cond (gt $ow 1080) 1080 $ow -}}
   {{- $jpg := $res.Resize (printf "%dx jpg q82" $jw) -}}
   {{- $title := cond (ne (string .Title) "") (printf " title=%q" (.Title | transform.HTMLEscape)) "" -}}
-  <picture><source type="image/webp" srcset="{{ delimit $set ", " }}" sizes="(max-width: 720px) 100vw, 720px"><img src="{{ $jpg.RelPermalink }}" width="{{ $jpg.Width }}" height="{{ $jpg.Height }}" alt="{{ .Text | transform.HTMLEscape }}"{{ $title | safeHTMLAttr }} loading="lazy" decoding="async"></picture>
+  <picture><source type="image/webp" srcset="{{ delimit $set ", " }}" sizes="(max-width: 720px) 100vw, 720px"><img src="{{ $jpg.RelPermalink }}" alt="{{ .Text | transform.HTMLEscape }}"{{ $title }} loading="lazy" decoding="async"></picture>
 {{- else -}}
   {{- /* Not a resolvable resource (e.g. a not-yet-added placeholder or a static
         path). Make bundle-relative paths root-relative so they resolve on-site
