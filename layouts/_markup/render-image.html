@@ -1,6 +1,9 @@
 {{- /*
   Image render hook.
-  For page-bundle raster images: generate responsive WebP (srcset) at build time.
+  For page-bundle raster images: <picture> with responsive WebP for browsers and
+  a JPEG <img> fallback. The JPEG fallback keeps images working in RSS readers,
+  email, and Substack (which don't reliably render WebP). URLs are absolutized in
+  the RSS template (layouts/_default/rss.xml).
   For static paths / external URLs / non-raster: fall back to a plain <img>.
   Mirrors PaperMod's resolution logic (PageInner.Resources / global resources).
 */ -}}
@@ -27,27 +30,22 @@
   {{- if and (lt $ow 1440) (not (in $ews $ow)) -}}{{- $ews = $ews | append $ow -}}{{- end -}}
   {{- if not $ews -}}{{- $ews = slice $ow -}}{{- end -}}
   {{- $set := slice -}}
-  {{- $fb := false -}}
   {{- range $w := $ews -}}
     {{- $d := $res.Resize (printf "%dx webp q82" $w) -}}
     {{- $set = $set | append (printf "%s %dw" $d.RelPermalink $w) -}}
-    {{- $fb = $d -}}
   {{- end -}}
-  {{- $attrs := merge .Attributes (dict
-      "alt" .Text
-      "src" $fb.RelPermalink
-      "srcset" (delimit $set ", ")
-      "sizes" "(max-width: 720px) 100vw, 720px"
-      "width" (string $fb.Width)
-      "height" (string $fb.Height)
-      "title" (.Title | transform.HTMLEscape)
-      "loading" "lazy"
-      "decoding" "async") -}}
-  <img
-    {{- range $k, $v := $attrs -}}
-      {{- if $v -}}{{- printf " %s=%q" $k (printf "%v" $v) | safeHTMLAttr -}}{{- end -}}
-    {{- end -}}>
+  {{- /* JPEG fallback for the <img> (feed/email safe), capped at 1080px */ -}}
+  {{- $jw := cond (gt $ow 1080) 1080 $ow -}}
+  {{- $jpg := $res.Resize (printf "%dx jpg q82" $jw) -}}
+  {{- $title := cond (ne (string .Title) "") (printf " title=%q" (.Title | transform.HTMLEscape)) "" -}}
+  <picture><source type="image/webp" srcset="{{ delimit $set ", " }}" sizes="(max-width: 720px) 100vw, 720px"><img src="{{ $jpg.RelPermalink }}" width="{{ $jpg.Width }}" height="{{ $jpg.Height }}" alt="{{ .Text | transform.HTMLEscape }}"{{ $title | safeHTMLAttr }} loading="lazy" decoding="async"></picture>
 {{- else -}}
+  {{- /* Not a resolvable resource (e.g. a not-yet-added placeholder or a static
+        path). Make bundle-relative paths root-relative so they resolve on-site
+        and can be absolutized in the RSS feed. */ -}}
+  {{- if and (not $u.IsAbs) (not (strings.HasPrefix $src "/")) -}}
+    {{- $src = printf "%s%s" .PageInner.RelPermalink $src -}}
+  {{- end -}}
   {{- $attrs := merge .Attributes (dict
       "alt" .Text
       "src" $src

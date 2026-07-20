@@ -1,0 +1,36 @@
+{{- $pctx := . -}}
+{{- if .IsHome -}}{{ $pctx = site }}{{- end -}}
+{{- $pages := slice -}}
+{{- if or $.IsHome $.IsSection -}}{{ $pages = $pctx.RegularPages -}}{{- else -}}{{ $pages = $pctx.Pages -}}{{- end -}}
+{{- $limit := site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 -}}{{ $pages = $pages | first $limit -}}{{- end -}}
+{{- $base := strings.TrimSuffix "/" site.BaseURL -}}
+{{- printf `<?xml version="1.0" encoding="utf-8" standalone="yes"?>` | safeHTML -}}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>{{ if eq .Title site.Title }}{{ site.Title }}{{ else }}{{ with .Title }}{{ . }} on {{ end }}{{ site.Title }}{{ end }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>{{ with site.Params.description }}{{ . }}{{ else }}Recent content{{ with site.Title }} on {{ . }}{{ end }}{{ end }}</description>
+    <generator>Hugo</generator>{{ with site.Language.LanguageCode }}
+    <language>{{ . }}</language>{{ end }}
+    <lastBuildDate>{{ now.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>
+    <atom:link href="{{ .Permalink }}index.xml" rel="self" type="application/rss+xml" />
+    {{- range $pages }}
+    {{- $content := .Content | replaceRE `(src|href)="(/[^"]*)"` (printf `${1}="%s${2}"` $base) -}}
+    {{- /* feeds get the plain absolute <img> (JPEG); drop the <picture>/<source> wrapper */ -}}
+    {{- $content = $content | replaceRE `<source[^>]*>` "" | replaceRE `</?picture>` "" -}}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- with site.Params.author }}<dc:creator>{{ . }}</dc:creator>{{- end }}
+      {{- range .Params.tags }}
+      <category>{{ . }}</category>
+      {{- end }}
+      <guid>{{ .Permalink }}</guid>
+      <description>{{ printf "<![CDATA[%s]]>" (.Summary | plainify | chomp) | safeHTML }}</description>
+      <content:encoded>{{ printf "<![CDATA[%s]]>" $content | safeHTML }}</content:encoded>
+    </item>
+    {{- end }}
+  </channel>
+</rss>
