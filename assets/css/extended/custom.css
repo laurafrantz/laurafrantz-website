@@ -25,6 +25,15 @@ h1, h2, h3, h4, h5, h6,
     font-optical-sizing: auto;
 }
 
+/* ---- Guarantee images never stretch/squash out of proportion.
+   width/height HTML attributes on <img> (set by the render hooks) intentionally
+   describe each photo's real aspect ratio so the browser can reserve the right
+   space before it loads (avoids layout jump). This rule makes the *displayed*
+   size always follow from width alone, height scaling to match, no matter what. ---- */
+img, picture img {
+    height: auto !important;
+}
+
 /* ---- Landing-page hero image (home intro block, under the header) ---- */
 .home-info .entry-content img {
     display: block;
