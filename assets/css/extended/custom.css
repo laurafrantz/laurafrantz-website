@@ -1,0 +1,8 @@
+/* Landing-page hero image (in the home intro block, under the byline) */
+.home-info .entry-content img {
+    display: block;
+    width: min(600px, 100%);
+    height: auto;
+    margin: 1.25rem auto 0;
+    border-radius: 16px;
+}

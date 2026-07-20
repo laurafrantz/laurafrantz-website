@@ -38,7 +38,11 @@ timeZone = "America/New_York"
   # Landing page intro block
   [params.homeInfoParams]
     Title = "Laura J. Frantz"
-    Content = "Journal of a reflective life."
+    Content = """
+Journal of a reflective life.
+
+![White asters in a late-summer meadow](/images/landing.jpg)
+"""
 
   # Fuse.js search options
   [params.fuseOpts]
