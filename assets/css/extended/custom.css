@@ -1,8 +1,65 @@
-/* Landing-page hero image (in the home intro block, under the byline) */
+/* ---- Landing-page hero image (home intro block, under the header) ---- */
 .home-info .entry-content img {
     display: block;
     width: min(600px, 100%);
     height: auto;
-    margin: 1.25rem auto 0;
+    margin: 0 auto;
     border-radius: 16px;
+}
+
+/* ---- Cream background in light mode ----
+   Dark mode uses higher-specificity :root[data-theme="dark"] rules, so these
+   :root overrides apply only in light mode. */
+:root {
+    --theme: #f5efe3;      /* page background (cream) */
+    --entry: #fdfaf2;      /* cards */
+    --code-bg: #ece4d4;    /* inline code / code blocks */
+    --border: #e7dfcd;
+}
+/* List/home pages default their page background to --code-bg; point it back at
+   the cream page color so single and list pages match. */
+.list {
+    background: var(--theme);
+}
+
+/* ---- Mobile hamburger menu (button injected by extend_footer.html) ---- */
+.nav-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 0 0.4rem;
+    align-items: center;
+}
+@media (max-width: 768px) {
+    .logo {
+        flex: 1 1 auto;
+    }
+    .nav-hamburger {
+        display: inline-flex;
+        margin-inline-start: auto;
+    }
+    #menu {
+        display: none;
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        white-space: normal;
+        overflow-x: visible;
+        margin: 0.25rem 0 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    .header-nav.menu-open #menu {
+        display: flex;
+    }
+    #menu li {
+        width: 100%;
+    }
+    #menu a {
+        display: block;
+        padding: 0.35rem 0;
+        font-size: 18px;
+    }
 }

@@ -35,14 +35,10 @@ timeZone = "America/New_York"
   hidemeta = false
   disableScrollToTop = false
 
-  # Landing page intro block
+  # Landing page intro block (image only; site title/tagline shown in the header)
   [params.homeInfoParams]
-    Title = "Laura J. Frantz"
-    Content = """
-Journal of a reflective life.
-
-![White asters in a late-summer meadow](/images/landing.jpg)
-"""
+    Title = ""
+    Content = "![White asters in a late-summer meadow](/images/landing.jpg)"
 
   # Fuse.js search options
   [params.fuseOpts]

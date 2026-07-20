@@ -1,0 +1,13 @@
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+    {{- with .Title }}
+    <header class="entry-header">
+        <h1>{{ . | markdownify }}</h1>
+    </header>
+    {{- end }}
+    <div class="entry-content md-content">
+        {{ $opts := dict "display" "block" }}
+        {{ .Content | $.Page.RenderString $opts }}
+    </div>
+</article>
+{{- end -}}
