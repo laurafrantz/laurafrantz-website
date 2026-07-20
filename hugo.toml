@@ -38,7 +38,7 @@ timeZone = "America/New_York"
   # Landing page intro block (image only; site title/tagline shown in the header)
   [params.homeInfoParams]
     Title = ""
-    Content = "![White asters in a late-summer meadow](/images/landing.jpg)"
+    Content = "![White asters in a late-summer meadow](images/landing.jpg)"
 
   # Fuse.js search options
   [params.fuseOpts]

@@ -1,0 +1,62 @@
+{{- /*
+  Image render hook.
+  For page-bundle raster images: generate responsive WebP (srcset) at build time.
+  For static paths / external URLs / non-raster: fall back to a plain <img>.
+  Mirrors PaperMod's resolution logic (PageInner.Resources / global resources).
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $src := $u.String -}}
+{{- $res := false -}}
+{{- if not $u.IsAbs -}}
+  {{- $path := strings.TrimPrefix "./" $u.Path -}}
+  {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+    {{- $res = . -}}
+    {{- $src = .RelPermalink -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $raster := slice "jpeg" "png" "tiff" "bmp" "webp" -}}
+{{- if and $res (in $raster $res.MediaType.SubType) -}}
+  {{- $ow := $res.Width -}}
+  {{- /* candidate widths, capped at the original; add the original itself if it
+        falls below the top breakpoint so the sharpest version is offered too */ -}}
+  {{- $ews := slice -}}
+  {{- range $w := (slice 480 720 1080 1440) -}}
+    {{- if le $w $ow -}}{{- $ews = $ews | append $w -}}{{- end -}}
+  {{- end -}}
+  {{- if and (lt $ow 1440) (not (in $ews $ow)) -}}{{- $ews = $ews | append $ow -}}{{- end -}}
+  {{- if not $ews -}}{{- $ews = slice $ow -}}{{- end -}}
+  {{- $set := slice -}}
+  {{- $fb := false -}}
+  {{- range $w := $ews -}}
+    {{- $d := $res.Resize (printf "%dx webp q82" $w) -}}
+    {{- $set = $set | append (printf "%s %dw" $d.RelPermalink $w) -}}
+    {{- $fb = $d -}}
+  {{- end -}}
+  {{- $attrs := merge .Attributes (dict
+      "alt" .Text
+      "src" $fb.RelPermalink
+      "srcset" (delimit $set ", ")
+      "sizes" "(max-width: 720px) 100vw, 720px"
+      "width" (string $fb.Width)
+      "height" (string $fb.Height)
+      "title" (.Title | transform.HTMLEscape)
+      "loading" "lazy"
+      "decoding" "async") -}}
+  <img
+    {{- range $k, $v := $attrs -}}
+      {{- if $v -}}{{- printf " %s=%q" $k (printf "%v" $v) | safeHTMLAttr -}}{{- end -}}
+    {{- end -}}>
+{{- else -}}
+  {{- $attrs := merge .Attributes (dict
+      "alt" .Text
+      "src" $src
+      "title" (.Title | transform.HTMLEscape)
+      "loading" "lazy"
+      "decoding" "async") -}}
+  <img
+    {{- range $k, $v := $attrs -}}
+      {{- if $v -}}{{- printf " %s=%q" $k $v | safeHTMLAttr -}}{{- end -}}
+    {{- end -}}>
+{{- end -}}
+{{- /**/ -}}
