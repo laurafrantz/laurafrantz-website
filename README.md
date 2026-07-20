@@ -6,7 +6,7 @@ GitHub Pages via GitHub Actions and served at **https://laurafrantz.com**.
 
 ## Local development
 
-Requires Hugo **extended** (see `HUGO_VERSION` in `.github/workflows/hugo.yaml`
+Requires Hugo **extended** (see `HUGO_VERSION` in `.github/workflows/deploy.yml`
 for the pinned version).
 
 ```bash
@@ -21,24 +21,25 @@ If you cloned without `--recurse-submodules`, fetch the theme with:
 git submodule update --init --recursive
 ```
 
+## Guides
+
+- **[Editing guide](docs/EDITING.md)** — add posts (with featured/cover images),
+  add images to existing posts, and add new pages + nav menu items. Written for
+  editing directly on github.com, no local setup required.
+- **[Cloudflare guide](docs/CLOUDFLARE.md)** — optional hotlink protection and
+  scraper deterrence, with the HTTPS-cert and RSS-syndication trade-offs.
+
 ## Structure
 
 - `content/posts/<slug>/` — one page bundle per post (`index.md` + that post's images).
 - `content/about.md`, `content/archives.md`, `content/search.md` — standalone pages.
 - `hugo.toml` — site configuration.
-- `.github/workflows/hugo.yaml` — build + deploy on every push to `main`.
+- `layouts/_markup/render-image.html` — build-time image optimization (resize → WebP → responsive `srcset`).
+- `.github/workflows/deploy.yml` — build + deploy on every push to `main`.
 
-## Adding images to a post
+## Images
 
-Many posts reference image files that are not yet present (e.g.
-`![](image-03.jpg)`). These come from the original blog and were placeholders in
-the source document. To add a photo, drop a file with the matching name into
-that post's folder and push — the site rebuilds automatically.
-
-## Writing a new post
-
-```bash
-hugo new posts/my-post-title/index.md
-```
-
-Then edit the front matter (`draft = false` to publish) and add your text.
+Post/landing images are automatically resized, converted to WebP, and served
+responsively at build time. Just drop image files into a post's folder and
+reference them with `![alt](file.jpg)`. Shrink photos to ~1600px before
+committing so full-resolution originals stay off the public repo.
