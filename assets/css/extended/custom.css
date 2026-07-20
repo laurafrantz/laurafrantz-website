@@ -22,6 +22,38 @@
     background: var(--theme);
 }
 
+/* ---- Floated, text-wrapping image (imgfloat shortcode) ---- */
+.img-float {
+    margin: 0.2rem 0 1rem;
+}
+.img-float img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+}
+.img-float--left {
+    float: left;
+    margin-right: 1.5rem;
+}
+.img-float--right {
+    float: right;
+    margin-left: 1.5rem;
+}
+/* keep following content (footer, etc.) from riding up beside the float */
+.post-content::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+@media (max-width: 480px) {
+    .img-float {
+        float: none;
+        width: 100% !important;
+        margin: 0 0 1rem;
+    }
+}
+
 /* ---- Mobile hamburger menu (button injected by extend_footer.html) ---- */
 .nav-hamburger {
     display: none;

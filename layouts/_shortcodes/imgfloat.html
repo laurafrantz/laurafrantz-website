@@ -1,0 +1,19 @@
+{{- /* Floated, text-wrapping image with WebP + JPEG fallback.
+   Usage: {{< imgfloat src="images/foo.jpg" alt="…" side="left" width="320" >}} */ -}}
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $side := .Get "side" | default "left" -}}
+{{- $w := int (.Get "width" | default "320") -}}
+{{- $res := or (.Page.Resources.Get $src) (resources.Get $src) -}}
+{{- $raster := slice "jpeg" "png" "tiff" "bmp" "webp" -}}
+{{- if and $res (in $raster $res.MediaType.SubType) -}}
+  {{- $set := slice -}}
+  {{- range (slice $w (mul $w 2)) -}}
+    {{- if le . $res.Width -}}{{- $set = $set | append (printf "%s %dw" ($res.Resize (printf "%dx webp q82" .)).RelPermalink .) -}}{{- end -}}
+  {{- end -}}
+  {{- $jw := cond (gt (mul $w 2) $res.Width) $res.Width (mul $w 2) -}}
+  {{- $jpg := $res.Resize (printf "%dx jpg q82" $jw) -}}
+  <figure class="img-float img-float--{{ $side }}" style="width:min({{ $w }}px, 45%)"><picture><source type="image/webp" srcset="{{ delimit $set ", " }}" sizes="(max-width: 480px) 100vw, {{ $w }}px"><img src="{{ $jpg.RelPermalink }}" width="{{ $jpg.Width }}" height="{{ $jpg.Height }}" alt="{{ $alt }}" loading="lazy" decoding="async"></picture></figure>
+{{- else -}}
+  <figure class="img-float img-float--{{ $side }}" style="width:min({{ $w }}px, 45%)"><img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy" decoding="async"></figure>
+{{- end -}}
