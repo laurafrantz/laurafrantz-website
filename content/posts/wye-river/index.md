@@ -5,7 +5,7 @@ draft = false
 tags = ["Family", "Travel"]
 +++
 
-![](image-01.jpg)
+![wye river](Image 10.jpg)
 
 I stand on the deck of the boat, brow furrowed against whipping hair, wind lashing my back.
 
