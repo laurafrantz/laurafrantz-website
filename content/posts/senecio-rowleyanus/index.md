@@ -3,6 +3,7 @@ title = "senecio rowleyanus"
 date = 2019-07-05
 draft = false
 tags = ["Garden", "Healing", "Home"]
+cover = "senecio.jpg"
 +++
 
 ![senecio](senecio.jpg)
