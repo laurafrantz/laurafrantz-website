@@ -2,7 +2,6 @@
 title = "a wedding"
 date = 2010-06-11
 draft = false
-cover = ""
 tags = ["Family", "Occasions"]
 +++
 

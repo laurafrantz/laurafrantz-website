@@ -2,7 +2,6 @@
 title = "across the highway"
 date = 2014-03-09
 draft = false
-cover = ""
 tags = ["Outside"]
 +++
 

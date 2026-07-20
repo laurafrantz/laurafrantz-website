@@ -2,7 +2,6 @@
 title = "analog"
 date = 2016-02-19
 draft = false
-cover = ""
 tags = ["Thoughts"]
 +++
 

@@ -2,7 +2,6 @@
 title = "49: a declaration"
 date = 2017-12-16
 draft = false
-cover = ""
 tags = ["Thoughts"]
 +++
 

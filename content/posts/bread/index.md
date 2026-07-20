@@ -2,7 +2,6 @@
 title = "bread"
 date = 2008-09-17
 draft = false
-cover = ""
 tags = ["Family", "Food", "Home"]
 +++
 

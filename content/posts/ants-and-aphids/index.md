@@ -2,7 +2,6 @@
 title = "ants and aphids"
 date = 2013-05-24
 draft = false
-cover = ""
 tags = ["Homeschooling", "Outside"]
 +++
 

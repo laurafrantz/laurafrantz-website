@@ -2,7 +2,6 @@
 title = "a head full of fluff"
 date = 2010-04-23
 draft = false
-cover = ""
 tags = ["Thoughts"]
 +++
 

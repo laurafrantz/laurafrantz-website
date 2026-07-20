@@ -2,7 +2,6 @@
 title = "a world"
 date = 2009-12-27
 draft = false
-cover = ""
 tags = ["Crafting", "Family", "Occasions"]
 +++
 

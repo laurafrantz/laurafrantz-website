@@ -2,7 +2,6 @@
 title = "At the End of the Year"
 date = 2016-12-30
 draft = false
-cover = ""
 tags = ["Home"]
 +++
 

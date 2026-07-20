@@ -2,7 +2,6 @@
 title = "after school"
 date = 2009-10-30
 draft = false
-cover = ""
 tags = ["Family", "Home"]
 +++
 

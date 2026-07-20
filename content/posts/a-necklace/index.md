@@ -2,7 +2,6 @@
 title = "a necklace"
 date = 2009-03-11
 draft = false
-cover = ""
 tags = ["Family"]
 +++
 

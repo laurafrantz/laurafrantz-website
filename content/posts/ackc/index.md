@@ -2,7 +2,6 @@
 title = "ackc"
 date = 2010-11-23
 draft = false
-cover = ""
 tags = ["Around Town"]
 +++
 

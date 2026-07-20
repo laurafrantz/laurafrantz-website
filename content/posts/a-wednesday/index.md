@@ -2,7 +2,6 @@
 title = "a wednesday"
 date = 2009-03-19
 draft = false
-cover = ""
 tags = ["Family"]
 +++
 

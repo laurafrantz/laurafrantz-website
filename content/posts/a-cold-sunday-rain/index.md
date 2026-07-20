@@ -2,7 +2,6 @@
 title = "a cold sunday rain"
 date = 2013-10-13
 draft = false
-cover = ""
 tags = ["Home"]
 +++
 

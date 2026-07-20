@@ -2,7 +2,6 @@
 title = "at erica's"
 date = 2016-06-21
 draft = false
-cover = ""
 tags = ["Family", "Friends", "Outside", "Thoughts", "Travel"]
 +++
 

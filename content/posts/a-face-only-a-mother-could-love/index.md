@@ -2,7 +2,6 @@
 title = "a face only a mother could love"
 date = 2009-11-07
 draft = false
-cover = ""
 tags = ["Crafting"]
 +++
 

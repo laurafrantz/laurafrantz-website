@@ -2,7 +2,6 @@
 title = "a gift"
 date = 2014-06-26
 draft = false
-cover = ""
 tags = ["Crafting", "Friends"]
 +++
 
