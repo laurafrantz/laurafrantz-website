@@ -13,7 +13,8 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  # Bursts of quick edits only build the latest push; superseded runs cancel.
+  cancel-in-progress: true
 
 defaults:
   run:
