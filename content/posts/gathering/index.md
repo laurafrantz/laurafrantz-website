@@ -5,7 +5,7 @@ draft = false
 tags = ["Family", "Occasions"]
 +++
 
-![](image-01.jpg)
+![gathering](gathering.jpg)
 
 On a sunny Saturday we hosted a birthday party for a loved one. Soundtrack: Heijera — the entire LP front and back twice. I can never get enough Jaco.
 
