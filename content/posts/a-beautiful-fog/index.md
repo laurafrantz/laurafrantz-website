@@ -2,6 +2,7 @@
 title = "a beautiful fog"
 date = 2014-01-15
 draft = false
+cover = ""
 tags = ["Outside"]
 +++
 
