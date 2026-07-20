@@ -5,6 +5,6 @@ draft = false
 tags = ["Outside"]
 +++
 
-![morning fog_11972128014_o](image-01.jpg)
+![morning fog](image-02.jpg)
 
 A beautiful fog. The pull of memory. I close my eyes and live a thousand lives.
