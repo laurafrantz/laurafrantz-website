@@ -2,6 +2,7 @@
 title = "a walk to chinatown"
 date = 2010-04-03
 draft = false
+cover = ""
 tags = ["Around Town"]
 +++
 
