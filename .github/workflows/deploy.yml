@@ -40,6 +40,19 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+      - name: Lint front matter (catch bad cover fields before they break the build)
+        run: |
+          bad=$(grep -rEln '^cover[[:space:]]*=[[:space:]]*"' content/ || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Found a bare 'cover = \"...\"' line, which crashes the site build."
+            echo "The correct format is a [cover] block, e.g.:"
+            echo "  [cover]"
+            echo "    image = \"filename.jpg\""
+            echo "See docs/EDITING.md, 'Adding (or changing) a cover image on an existing post'."
+            echo "Affected files:"
+            echo "$bad"
+            exit 1
+          fi
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5

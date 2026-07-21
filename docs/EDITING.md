@@ -54,6 +54,16 @@ Live in ~1 minute.
 - To hide the featured image **only on the cards** (but keep it on the post),
   add `hiddenInList = true` inside the `[cover]` block.
 
+> ⚠️ **The `[cover]` block must look exactly like the example above** — a
+> `[cover]` line by itself, then an indented `image = "..."` line below it.
+>
+> **Never write `cover = "cover.jpg"` as a single line.** That form looks
+> reasonable but is a different, invalid shape — it silently **breaks the
+> entire site build** (not just that one post) the moment it's committed,
+> because the template can't read an image filename out of plain text the
+> way it can out of the `[cover]` block. If a deploy ever goes red right
+> after adding a cover image, this is the first thing to check.
+
 ---
 
 ## 2. Adding images to an existing post
@@ -74,6 +84,41 @@ Either:
 - **Match the name** — upload a file named `image-03.jpg` and it just appears, or
 - **Use your own name** — upload `sunset.jpg`, then edit the line to
   `![](sunset.jpg)`.
+
+### Adding (or changing) a cover image on an existing post
+
+Same idea as a new post's cover (above): upload the file into the post's
+folder, then add this to the **top** of `index.md`, right after the other
+`+++`-fenced fields, before the closing `+++`:
+
+```toml
+[cover]
+  image = "cover.jpg"
+```
+
+For example, an existing post's front matter would go from:
+```toml
++++
+title = "senecio rowleyanus"
+date = 2019-07-05
+draft = false
+tags = ["Garden", "Healing", "Home"]
++++
+```
+to:
+```toml
++++
+title = "senecio rowleyanus"
+date = 2019-07-05
+draft = false
+tags = ["Garden", "Healing", "Home"]
+
+[cover]
+  image = "senecio.jpg"
++++
+```
+Same warning as above applies: it must be the two-line `[cover]` block, never
+a single `cover = "..."` line.
 
 ---
 
