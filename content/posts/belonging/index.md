@@ -1,5 +1,5 @@
 +++
-title = "Belonging"
+title = "belonging"
 date = 2015-03-21
 draft = false
 tags = ["Crafting", "Thoughts"]

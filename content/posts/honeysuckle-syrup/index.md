@@ -1,5 +1,5 @@
 +++
-title = "Honeysuckle Syrup"
+title = "honeysuckle syrup"
 date = 2014-06-11
 draft = false
 tags = ["Food", "Home"]

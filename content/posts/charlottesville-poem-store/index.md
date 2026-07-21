@@ -1,5 +1,5 @@
 +++
-title = "Charlottesville Poem Store"
+title = "charlottesville poem store"
 date = 2023-05-23
 draft = false
 tags = ["Poem Store"]

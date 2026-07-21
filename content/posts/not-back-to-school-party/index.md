@@ -1,5 +1,5 @@
 +++
-title = "Not Back To School Party"
+title = "not back to school party"
 date = 2008-09-04
 draft = false
 tags = ["Friends", "Homeschooling", "Occasions", "Outside"]

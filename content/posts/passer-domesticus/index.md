@@ -1,5 +1,5 @@
 +++
-title = "Passer domesticus"
+title = "passer domesticus"
 date = 2016-11-15
 draft = false
 tags = ["Family", "Outside"]

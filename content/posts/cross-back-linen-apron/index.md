@@ -1,5 +1,5 @@
 +++
-title = "Cross-back Linen Apron"
+title = "cross-back linen apron"
 date = 2015-04-06
 draft = false
 tags = ["Crafting", "Friends"]

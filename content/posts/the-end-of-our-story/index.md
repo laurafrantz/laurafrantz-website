@@ -1,5 +1,5 @@
 +++
-title = "The End of Our Story"
+title = "the end of our story"
 date = 2014-11-11
 draft = false
 tags = ["Thoughts"]

@@ -1,5 +1,5 @@
 +++
-title = "My Soul Will Sleep"
+title = "my soul will sleep"
 date = 2012-07-17
 draft = false
 tags = ["Healing", "Thoughts"]

@@ -1,5 +1,5 @@
 +++
-title = "Brevity Magazine, Winter 2015"
+title = "brevity magazine, winter 2015"
 date = 2015-01-20
 draft = false
 tags = ["Occasions"]

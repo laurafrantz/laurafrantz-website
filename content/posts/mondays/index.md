@@ -1,5 +1,5 @@
 +++
-title = "Mondays"
+title = "mondays"
 date = 2015-04-25
 draft = false
 tags = ["Around Town", "Food"]

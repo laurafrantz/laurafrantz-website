@@ -1,5 +1,5 @@
 +++
-title = "At the End of the Year"
+title = "at the end of the year"
 date = 2016-12-30
 draft = false
 tags = ["Home"]

@@ -1,5 +1,5 @@
 +++
-title = "Bamboo Tomato Teepees"
+title = "bamboo tomato teepees"
 date = 2015-05-04
 draft = false
 tags = ["Garden", "Home", "Outside"]

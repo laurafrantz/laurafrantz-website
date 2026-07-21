@@ -1,5 +1,5 @@
 +++
-title = "In which we hunt for Colour"
+title = "in which we hunt for colour"
 date = 2009-03-23
 draft = false
 tags = ["Family", "Outside"]
