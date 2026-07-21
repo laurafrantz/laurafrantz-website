@@ -337,12 +337,18 @@ function allImagesForPost(slug) {
   return [...existing, ...stagedList];
 }
 
+function coverHasInlineRef(p, coverFile) {
+  if (!coverFile) return false;
+  const re = new RegExp("!\\[[^\\]]*\\]\\(" + escapeRegex(coverFile) + "\\)");
+  return re.test(p.body);
+}
+
 function renderDetail() {
   const slug = activeSlug;
   const p = posts[slug];
   const main = document.getElementById("main");
   const images = allImagesForPost(slug);
-  const singleImage = images.length === 1;
+  const showDupeOption = coverHasInlineRef(p, coverChoice[slug]);
 
   let slotsHtml = "";
   for (const missing of p.missingSlots) {
@@ -373,10 +379,10 @@ function renderDetail() {
         ${images.length === 0 ? '<span class="hint">No images yet — drag photos above.</span>' : ""}
       </div>
 
-      ${images.length === 1 ? `
+      ${showDupeOption ? `
       <div class="field-row">
         <label><input type="checkbox" id="remove-dupe-cb" ${removeDupe[slug] !== false ? "checked" : ""}>
-        Remove the duplicate inline copy of the cover photo from the body text (recommended when it's the only photo)</label>
+        Remove the duplicate inline copy of the cover photo from the body text (recommended — it already shows prominently as the cover)</label>
       </div>` : ""}
 
       <div class="field-row">
@@ -474,7 +480,7 @@ function nextNeedy() {
   alert("No more posts need photos!");
 }
 
-function buildNewContent(p, coverFile, doRemoveDupe) {
+function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles) {
   let fm = p.fm.replace(/\n*$/, "");
   fm = fm.replace(/\n*\[cover\][\s\S]*$/, "").replace(/\n*$/, "");
   if (coverFile) {
@@ -483,6 +489,15 @@ function buildNewContent(p, coverFile, doRemoveDupe) {
     fm += "\n";
   }
   let body = p.body;
+
+  // Photos dropped on "add new photo" (not tied to an existing missing slot) have no
+  // inline reference yet. Add one for each, unless it's the cover (cover-only, no
+  // redundant inline copy -- consistent with the dupe-removal behavior below).
+  const toAppend = (newlyAddedFiles || []).filter(f => f !== coverFile);
+  for (const f of toAppend) {
+    body = body.trimEnd() + `\n\n![](${f})\n`;
+  }
+
   if (doRemoveDupe && coverFile) {
     const re = new RegExp("!\\[[^\\]]*\\]\\(" + escapeRegex(coverFile) + "\\)\\s*");
     body = body.replace(re, "");
@@ -520,7 +535,8 @@ async function savePost(slug) {
       treeEntries.push({ path: `content/posts/${slug}/${fname}`, mode: "100644", type: "blob", sha: blob.sha });
     }
 
-    const newContent = buildNewContent(p, coverFile, doRemoveDupe);
+    const newlyAddedFiles = Object.keys(filesToUpload).filter(f => !p.missingSlots.includes(f));
+    const newContent = buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles);
     const indexBlob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
       method: "POST", body: JSON.stringify({ content: newContent, encoding: "utf-8" })
     });
