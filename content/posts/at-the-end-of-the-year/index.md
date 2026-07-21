@@ -3,9 +3,11 @@ title = "At the End of the Year"
 date = 2016-12-30
 draft = false
 tags = ["Home"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 On the second to last day of this year, I stand at the clothesline and pin damp sheets and pillowcases still smelling of lavender. They snap and twist in the cold wind. I'm surrounded by all the[...]
 
