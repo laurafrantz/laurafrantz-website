@@ -3,6 +3,10 @@ title = "a walk to chinatown"
 date = 2010-04-03
 draft = false
 tags = ["Around Town"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![paddle boats](image-01.jpg)
