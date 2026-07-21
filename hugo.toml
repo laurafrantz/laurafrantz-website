@@ -35,6 +35,7 @@ timeZone = "America/New_York"
   hidemeta = false
   disableScrollToTop = false
   ShowCoverImage = true
+  disableSpecial1stPost = true
 
   # Fuse.js search options
   [params.fuseOpts]
