@@ -36,11 +36,6 @@ timeZone = "America/New_York"
   disableScrollToTop = false
   ShowCoverImage = true
 
-  # Landing page intro block (image only; site title/tagline shown in the header)
-  [params.homeInfoParams]
-    Title = ""
-    Content = "![White asters in a late-summer meadow](images/landing.jpg)"
-
   # Fuse.js search options
   [params.fuseOpts]
     isCaseSensitive = false

@@ -34,15 +34,6 @@ img, picture img {
     height: auto !important;
 }
 
-/* ---- Landing-page hero image (home intro block, under the header) ---- */
-.home-info .entry-content img {
-    display: block;
-    width: min(600px, 100%);
-    height: auto;
-    margin: 0 auto;
-    border-radius: 16px;
-}
-
 /* ---- Cream background in light mode ----
    Dark mode uses higher-specificity :root[data-theme="dark"] rules, so these
    :root overrides apply only in light mode. */
