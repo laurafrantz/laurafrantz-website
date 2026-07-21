@@ -72,6 +72,28 @@ jobs:
             -EXIF:Copyright="© Laura J. Frantz" \
             -ext jpg -ext jpeg -ext png -ext webp \
             ./public || true
+      - name: Diagnose senecio cover images (temporary)
+        run: |
+          echo "=== file(1) ==="
+          file public/posts/senecio-rowleyanus/senecio*.jpg || true
+          echo "=== exiftool full raw dump ==="
+          exiftool -a -G1 -s -struct public/posts/senecio-rowleyanus/senecio.jpg || true
+          echo "=== exiftool validate ==="
+          exiftool -validate -warning -error -a public/posts/senecio-rowleyanus/senecio*.jpg || true
+          echo "=== python Pillow full decode test ==="
+          python3 -m pip install --quiet Pillow
+          python3 -c "
+          from PIL import Image
+          import glob
+          for f in sorted(glob.glob('public/posts/senecio-rowleyanus/senecio*.jpg')):
+              try:
+                  im = Image.open(f)
+                  im.load()
+                  exif = im.getexif()
+                  print(f, 'DECODE_OK size=', im.size, 'mode=', im.mode, 'orientation=', exif.get(274), 'icc=', im.info.get('icc_profile') is not None)
+              except Exception as e:
+                  print(f, 'DECODE_FAILED:', repr(e))
+          "
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
