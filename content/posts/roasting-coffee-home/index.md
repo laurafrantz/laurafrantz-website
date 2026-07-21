@@ -3,6 +3,10 @@ title = "roasting coffee @ home"
 date = 2009-09-22
 draft = false
 tags = ["Food"]
+
+[cover]
+  image = "image-02.jpg"
+  relative = true
 +++
 
 ![first crack](image-01.jpg)
