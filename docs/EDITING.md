@@ -37,6 +37,7 @@ it appears on the home cards *and* at the top of the post.
    [cover]
      image = "cover.jpg"
      alt = "Short description of the photo"
+     relative = true
    +++
 
    Write your post here. Add an inline image any time with:
@@ -94,6 +95,7 @@ folder, then add this to the **top** of `index.md`, right after the other
 ```toml
 [cover]
   image = "cover.jpg"
+  relative = true
 ```
 
 For example, an existing post's front matter would go from:
@@ -115,10 +117,16 @@ tags = ["Garden", "Healing", "Home"]
 
 [cover]
   image = "senecio.jpg"
+  relative = true
 +++
 ```
-Same warning as above applies: it must be the two-line `[cover]` block, never
-a single `cover = "..."` line.
+Same warning as above applies: it must be the `[cover]` block, never a single
+`cover = "..."` line.
+
+**`relative = true` matters:** the cover image lives inside the post's own
+folder, not at the site root. Without `relative = true`, the on-page cover
+still works, but the image used for social-media link previews (Slack,
+iMessage, Twitter/X, Facebook) points to the wrong URL and shows up broken.
 
 ---
 
@@ -154,7 +162,7 @@ Commit — "Now" appears in the menu (desktop and the mobile hamburger).
 
 | Task | Where | Key bit |
 |---|---|---|
-| New post | `content/posts/<slug>/index.md` | `[cover]` `image = "cover.jpg"` → card image |
+| New post | `content/posts/<slug>/index.md` | `[cover]` `image = "cover.jpg"`, `relative = true` → card image |
 | Post image | drop file in the post's folder | `![alt](file.jpg)` in `index.md` |
 | New page | `content/<name>.md` | `url = "/name/"` |
 | Nav item | `hugo.toml` `[menu]` | `[[menu.main]]` + `weight` for order |
