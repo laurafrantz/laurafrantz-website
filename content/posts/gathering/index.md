@@ -3,9 +3,11 @@ title = "gathering"
 date = 2023-02-02
 draft = false
 tags = ["Family", "Occasions"]
-+++
 
-![gathering](gathering.jpg)
+[cover]
+  image = "gathering.jpg"
+  relative = true
++++
 
 On a sunny Saturday we hosted a birthday party for a loved one. Soundtrack: Heijera — the entire LP front and back twice. I can never get enough Jaco.
 

@@ -3,6 +3,10 @@ title = "christmas eve 2012"
 date = 2012-12-27
 draft = false
 tags = ["Family", "Food", "Occasions"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

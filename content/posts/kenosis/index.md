@@ -3,9 +3,13 @@ title = "kenosis"
 date = 2015-03-10
 draft = false
 tags = ["Minimalism", "Thoughts"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
-![](image-01.jpg)*Know, first, who you are; and then adorn yourself accordingly. – Epictetus*
+*Know, first, who you are; and then adorn yourself accordingly. – Epictetus*
 
 I’m shedding clothing that I’ve kept for decades, things that I’ve held dear. A race t-shirt from 1990. A tailored, pinstriped suit from 1998. A black backless gown with beading along the hemline, the one that used to turn heads. I pull it all from the closet, sort it into piles for consignment, donation, and cleaning rags.
 

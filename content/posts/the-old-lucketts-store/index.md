@@ -3,6 +3,10 @@ title = "the old lucketts store"
 date = 2014-09-17
 draft = false
 tags = ["Travel"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

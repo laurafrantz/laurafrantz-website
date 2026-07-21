@@ -3,9 +3,11 @@ title = "salve"
 date = 2013-09-24
 draft = false
 tags = ["Outside"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 A walk:
 

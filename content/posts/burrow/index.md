@@ -3,9 +3,11 @@ title = "burrow"
 date = 2021-01-07
 draft = false
 tags = ["Healing", "Home"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 Trains pass this house many times a day and sound their horns at the crossings. They blend into the soundscape of birds, wind moving through pines, settling walls.
 

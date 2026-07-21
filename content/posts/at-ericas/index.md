@@ -3,6 +3,10 @@ title = "at erica's"
 date = 2016-06-21
 draft = false
 tags = ["Family", "Friends", "Outside", "Thoughts", "Travel"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

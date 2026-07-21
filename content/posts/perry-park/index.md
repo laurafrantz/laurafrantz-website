@@ -3,6 +3,10 @@ title = "perry park"
 date = 2009-06-23
 draft = false
 tags = ["Around Town", "Outside"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

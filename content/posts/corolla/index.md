@@ -3,6 +3,10 @@ title = "corolla"
 date = 2018-08-26
 draft = false
 tags = ["Family", "Friends", "Outside", "Travel"]
+
+[cover]
+  image = "image-09.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)
@@ -20,8 +24,6 @@ tags = ["Family", "Friends", "Outside", "Travel"]
 ![](image-07.jpg)
 
 ![](image-08.jpg)
-
-![](image-09.jpg)
 
 ![](image-10.jpg)
 

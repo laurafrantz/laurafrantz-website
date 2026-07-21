@@ -3,9 +3,11 @@ title = "wye river"
 date = 2013-08-05
 draft = false
 tags = ["Family", "Travel"]
-+++
 
-![wye river](Image-10.jpg)
+[cover]
+  image = "Image-10.jpg"
+  relative = true
++++
 
 I stand on the deck of the boat, brow furrowed against whipping hair, wind lashing my back.
 

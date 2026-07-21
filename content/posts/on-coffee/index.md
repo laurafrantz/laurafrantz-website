@@ -3,9 +3,11 @@ title = "on coffee"
 date = 2009-03-06
 draft = false
 tags = ["Family", "Food", "Thoughts"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 I sit down at the table with a perfect cup of coffee: a preheated mug filled three-quarters of the way with Freedom of Espresso’s organic blend, finished off with really long pours of both white sugar and heavy cream. As I take my first, second, and third sips of the morning, I can feel my mood lift from conscious to maniacally chipper. High on caffeine and eager for conversation, I look over at my seven year-old as she works on her spelling.
 

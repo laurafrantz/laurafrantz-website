@@ -3,9 +3,11 @@ title = "pizza for 16"
 date = 2013-08-12
 draft = false
 tags = ["Food", "Friends"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 I brought 16 balls of pizza dough, a big jar of my homemade [New York-style sauce](http://www.seriouseats.com/recipes/2010/10/new-york-style-pizza-sauce.html), and a jar of my spicy caramelized onion and hot cherry pepper mix to a friend’s house Sunday afternoon.
 

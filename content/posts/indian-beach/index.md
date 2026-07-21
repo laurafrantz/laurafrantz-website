@@ -3,9 +3,11 @@ title = "indian beach"
 date = 2013-05-21
 draft = false
 tags = ["Family", "Travel"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![](image-02.jpg)
 

@@ -3,6 +3,10 @@ title = "this time, before the snows,"
 date = 2008-10-16
 draft = false
 tags = ["Family", "Friends", "Outside", "Thoughts", "Travel"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

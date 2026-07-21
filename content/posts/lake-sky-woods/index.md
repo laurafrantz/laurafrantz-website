@@ -3,9 +3,11 @@ title = "lake, sky, woods"
 date = 2015-02-10
 draft = false
 tags = ["Outside"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 I leave the trail and follow a narrow deer path along the shoreline to a small, sheltered cove.
 

@@ -3,6 +3,10 @@ title = "snow"
 date = 2015-02-22
 draft = false
 tags = ["Outside"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

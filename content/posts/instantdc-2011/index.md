@@ -3,6 +3,10 @@ title = "instantdc 2011"
 date = 2011-11-04
 draft = false
 tags = ["Occasions"]
+
+[cover]
+  image = "image-01.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)

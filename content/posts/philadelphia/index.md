@@ -3,6 +3,10 @@ title = "philadelphia"
 date = 2017-07-11
 draft = false
 tags = ["Travel"]
+
+[cover]
+  image = "image-05.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)
