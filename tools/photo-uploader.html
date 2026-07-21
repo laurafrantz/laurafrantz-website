@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Uploader — laurafrantz.com</title>
+<style>
+  :root {
+    --bg: #f5efe3; --card: #fdfaf2; --border: #e7dfcd; --text: #1e1e1e;
+    --muted: #6c6c6c; --accent: #8a6d3b; --danger: #a33;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden;
+  }
+  #sidebar {
+    width: 340px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #main { flex: 1; overflow-y: auto; padding: 2rem; }
+  .pad { padding: 1rem; }
+  h1 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+  h2 { font-size: 1.4rem; margin: 0 0 0.25rem; }
+  input[type=password], input[type=text] {
+    width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.9rem; background: #fff;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 0.5rem 0.9rem; font-size: 0.9rem; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.secondary { background: #ddd3bd; color: #333; }
+  button.danger { background: var(--danger); }
+  #status { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; white-space: pre-wrap; }
+  #progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 0.5rem 0; }
+  #progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.2s; }
+  #post-search {
+    margin: 0 1rem; width: calc(100% - 2rem);
+  }
+  #filter-row { display: flex; gap: 0.4rem; margin: 0.5rem 1rem; font-size: 0.8rem; }
+  #filter-row label { display: flex; align-items: center; gap: 0.25rem; color: var(--muted); }
+  #post-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--border); }
+  .post-row {
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 0.85rem;
+  }
+  .post-row:hover { background: #f0e9d8; }
+  .post-row.active { background: #e8dfc8; }
+  .post-row .title { font-weight: 600; }
+  .post-row .meta { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+  .badge {
+    display: inline-block; font-size: 0.7rem; padding: 1px 6px; border-radius: 10px; margin-left: 6px;
+  }
+  .badge.needs { background: #f3d3d3; color: #7a2020; }
+  .badge.has { background: #d3e8d3; color: #1f5c1f; }
+  .badge.cover { background: #d3d8f3; color: #26307a; }
+  #detail-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; max-width: 900px;
+  }
+  .slot-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  .slot {
+    width: 160px; border: 2px dashed var(--border); border-radius: 8px; padding: 0.5rem;
+    text-align: center; font-size: 0.75rem; color: var(--muted); position: relative;
+  }
+  .slot.filled { border-style: solid; border-color: #bcae8a; }
+  .slot.dragover { border-color: var(--accent); background: #fbf3e2; }
+  .slot img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 4px; }
+  .slot .fname { font-family: monospace; font-size: 0.7rem; word-break: break-all; }
+  .slot .cover-radio { margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .slot .remove-btn {
+    position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: #fff; border: none;
+    border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
+  }
+  #new-drop {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;
+    color: var(--muted); font-size: 0.85rem; margin: 1rem 0; cursor: pointer;
+  }
+  #new-drop.dragover { border-color: var(--accent); background: #fbf3e2; }
+  .field-row { margin: 0.75rem 0; font-size: 0.85rem; }
+  .field-row label { display: block; margin-bottom: 4px; color: var(--muted); }
+  textarea.body-preview {
+    width: 100%; min-height: 120px; font-family: monospace; font-size: 0.8rem;
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; background: #fff;
+  }
+  #save-row { margin-top: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  .hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+  #setup-box { max-width: 640px; }
+  #setup-box ol { font-size: 0.9rem; line-height: 1.6; }
+  #setup-box code { background: #eee3cc; padding: 1px 5px; border-radius: 4px; }
+  .empty-state { color: var(--muted); text-align: center; margin-top: 4rem; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="pad">
+    <h1>laurafrantz.com — Photo Uploader</h1>
+    <div id="auth-box">
+      <input type="password" id="token-input" placeholder="GitHub token (ghp_... or fine-grained)">
+      <button id="connect-btn" style="margin-top:0.5rem;width:100%">Connect</button>
+      <div id="status"></div>
+      <div id="progress-bar" style="display:none"><div id="progress-fill"></div></div>
+    </div>
+  </div>
+  <div id="list-controls" style="display:none">
+    <input type="text" id="post-search" placeholder="Search posts…">
+    <div id="filter-row">
+      <label><input type="checkbox" id="filter-needs" checked> Needs photos</label>
+      <label><input type="checkbox" id="filter-has"> Has photos</label>
+    </div>
+    <div class="pad" style="padding-top:0;font-size:0.8rem;color:var(--muted)" id="counts"></div>
+  </div>
+  <div id="post-list"></div>
+</div>
+
+<div id="main">
+  <div id="setup-box">
+    <h2>Setup</h2>
+    <p>This page talks directly to GitHub from your browser — nothing goes through any server but GitHub's own.</p>
+    <ol>
+      <li>Go to <strong>github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</strong>.</li>
+      <li><strong>Repository access:</strong> select "Only select repositories" → <code>laurafrantz/laurafrantz-website</code>. Never grant access to all repos.</li>
+      <li><strong>Permissions:</strong> under "Repository permissions", set <strong>Contents</strong> to <strong>Read and write</strong>. Leave everything else as "No access".</li>
+      <li>Set an <strong>expiration</strong> (e.g. 30 days) and click Generate.</li>
+      <li>Paste the token into the box on the left and click Connect.</li>
+    </ol>
+    <p class="hint">The token is only ever used in this browser tab, to talk directly to api.github.com. It is never sent anywhere else. Closing this page discards it (unless your browser autofills the field later).</p>
+  </div>
+</div>
+
+<script>
+const OWNER = "laurafrantz";
+const REPO = "laurafrantz-website";
+const BRANCH = "main";
+const API = "https://api.github.com";
+const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;
+
+let TOKEN = "";
+let posts = {};       // slug -> post model
+let activeSlug = null;
+let staged = {};       // per-slug staged uploads: slug -> { filename: File }
+let coverChoice = {};  // slug -> chosen cover filename or null
+let removeDupe = {};   // slug -> bool
+
+function gh(path, opts = {}) {
+  return fetch(API + path, {
+    ...opts,
+    headers: {
+      "Authorization": "Bearer " + TOKEN,
+      "Accept": "application/vnd.github+json",
+      ...(opts.headers || {})
+    }
+  }).then(async r => {
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`${opts.method || "GET"} ${path} -> ${r.status}: ${t.slice(0,300)}`);
+    }
+    return r.json();
+  });
+}
+
+function utf8ToB64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+function b64ToUtf8(b64) {
+  const bin = atob(b64.replace(/\n/g, ""));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+function fileToB64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const bin = new Uint8Array(r.result);
+      let out = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < bin.length; i += chunk) {
+        out += String.fromCharCode.apply(null, bin.subarray(i, i + chunk));
+      }
+      resolve(btoa(out));
+    };
+    r.onerror = reject;
+    r.readAsArrayBuffer(file);
+  });
+}
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+function isImageFile(name) { return /\.(jpe?g|png|webp|gif)$/i.test(name); }
+
+function parseFrontMatter(txt) {
+  const m = txt.match(/^\+\+\+([\s\S]*?)\+\+\+([\s\S]*)$/);
+  if (!m) return null;
+  return { fm: m[1], body: m[2] };
+}
+function getField(fm, name) {
+  const m = fm.match(new RegExp("^" + name + "\\s*=\\s*\"(.*)\"\\s*$", "m"));
+  return m ? m[1] : null;
+}
+function hasCoverBlock(fm) { return /^\[cover\]/m.test(fm); }
+function getCoverImage(fm) {
+  const m = fm.match(/^\[cover\][\s\S]*?^\s*image\s*=\s*"([^"]*)"/m);
+  return m ? m[1] : null;
+}
+function findImageRefs(body) {
+  const re = /!\[[^\]]*\]\(([^)\s]+)\)/g;
+  let m, refs = [];
+  while ((m = re.exec(body))) refs.push(m[1]);
+  return refs;
+}
+
+async function connect() {
+  TOKEN = document.getElementById("token-input").value.trim();
+  if (!TOKEN) { setStatus("Paste a token first."); return; }
+  document.getElementById("connect-btn").disabled = true;
+  setStatus("Fetching repo tree…");
+  try {
+    const tree = await gh(`/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
+    const entries = tree.tree.filter(e => e.type === "blob" && e.path.startsWith("content/posts/"));
+    const bySlug = {};
+    for (const e of entries) {
+      const parts = e.path.split("/");
+      if (parts.length !== 4) continue;
+      const slug = parts[2], fname = parts[3];
+      bySlug[slug] = bySlug[slug] || { slug, files: {} };
+      bySlug[slug].files[fname] = e.sha;
+    }
+    const slugs = Object.keys(bySlug).filter(s => bySlug[s].files["index.md"]);
+    setStatus(`Loading ${slugs.length} posts…`);
+    document.getElementById("progress-bar").style.display = "block";
+
+    let done = 0;
+    const CONC = 10;
+    let idx = 0;
+    async function worker() {
+      while (idx < slugs.length) {
+        const my = idx++;
+        const slug = slugs[my];
+        const sha = bySlug[slug].files["index.md"];
+        try {
+          const blob = await gh(`/repos/${OWNER}/${REPO}/git/blobs/${sha}`);
+          const content = b64ToUtf8(blob.content);
+          const parsed = parseFrontMatter(content);
+          const fm = parsed ? parsed.fm : "";
+          const body = parsed ? parsed.body : content;
+          const realImages = Object.keys(bySlug[slug].files).filter(isImageFile);
+          const refs = findImageRefs(body);
+          const missing = [...new Set(refs.filter(r => !bySlug[slug].files[r]))];
+          posts[slug] = {
+            slug,
+            title: getField(fm, "title") || slug,
+            date: getField(fm, "date") || "",
+            indexSha: sha,
+            files: bySlug[slug].files,
+            realImages,
+            missingSlots: missing,
+            hasCover: hasCoverBlock(fm),
+            coverImage: getCoverImage(fm),
+            fm, body, rawContent: content
+          };
+        } catch (e) {
+          console.error("failed to load", slug, e);
+        }
+        done++;
+        document.getElementById("progress-fill").style.width = Math.round(100 * done / slugs.length) + "%";
+      }
+    }
+    await Promise.all(Array.from({length: CONC}, worker));
+
+    document.getElementById("progress-bar").style.display = "none";
+    setStatus(`Connected. ${slugs.length} posts loaded.`);
+    document.getElementById("list-controls").style.display = "block";
+    document.getElementById("auth-box").style.display = "none";
+    renderList();
+  } catch (e) {
+    let hint = "";
+    if (/Failed to fetch/i.test(e.message)) {
+      hint = "\nThis usually means the browser blocked the request (no internet, or a strict content blocker). Try Chrome or Firefox if you're on Safari.";
+    } else if (/401|403/.test(e.message)) {
+      hint = "\nCheck the token: it may be expired, or missing the Contents: Read and write permission on this repo.";
+    } else if (/404/.test(e.message)) {
+      hint = "\nCheck the token has access to laurafrantz/laurafrantz-website specifically.";
+    }
+    setStatus("Error: " + e.message + hint);
+  }
+  document.getElementById("connect-btn").disabled = false;
+}
+
+function setStatus(msg) { document.getElementById("status").textContent = msg; }
+
+function renderList() {
+  const q = document.getElementById("post-search").value.toLowerCase();
+  const wantNeeds = document.getElementById("filter-needs").checked;
+  const wantHas = document.getElementById("filter-has").checked;
+  const all = Object.values(posts).sort((a,b) => (a.date||"").localeCompare(b.date||""));
+  const list = document.getElementById("post-list");
+  list.innerHTML = "";
+  let nNeeds = 0, nHas = 0;
+  for (const p of all) {
+    const needs = p.realImages.length === 0;
+    if (needs) nNeeds++; else nHas++;
+    if (needs && !wantNeeds) continue;
+    if (!needs && !wantHas) continue;
+    if (q && !p.title.toLowerCase().includes(q) && !p.slug.includes(q)) continue;
+    const row = document.createElement("div");
+    row.className = "post-row" + (p.slug === activeSlug ? " active" : "");
+    row.innerHTML = `<div class="title">${p.title}</div>
+      <div class="meta">${p.date || ""}
+      <span class="badge ${needs ? "needs" : "has"}">${p.realImages.length} photo${p.realImages.length===1?"":"s"}</span>
+      ${p.hasCover ? '<span class="badge cover">cover set</span>' : ""}</div>`;
+    row.onclick = () => selectPost(p.slug);
+    list.appendChild(row);
+  }
+  document.getElementById("counts").textContent = `${nNeeds} need photos · ${nHas} have photos · ${all.length} total`;
+}
+
+document.getElementById("post-search").addEventListener("input", renderList);
+document.getElementById("filter-needs").addEventListener("change", renderList);
+document.getElementById("filter-has").addEventListener("change", renderList);
+document.getElementById("connect-btn").addEventListener("click", connect);
+
+function selectPost(slug) {
+  activeSlug = slug;
+  staged[slug] = staged[slug] || {};
+  if (!(slug in coverChoice)) coverChoice[slug] = posts[slug].coverImage || null;
+  renderList();
+  renderDetail();
+}
+
+function allImagesForPost(slug) {
+  const p = posts[slug];
+  const existing = p.realImages.map(f => ({ filename: f, kind: "existing" }));
+  const stagedList = Object.keys(staged[slug] || {}).map(f => ({ filename: f, kind: "staged" }));
+  return [...existing, ...stagedList];
+}
+
+function renderDetail() {
+  const slug = activeSlug;
+  const p = posts[slug];
+  const main = document.getElementById("main");
+  const images = allImagesForPost(slug);
+  const singleImage = images.length === 1;
+
+  let slotsHtml = "";
+  for (const missing of p.missingSlots) {
+    const s = (staged[slug] || {})[missing];
+    slotsHtml += renderSlot(missing, s, "slot");
+  }
+  for (const existing of p.realImages) {
+    slotsHtml += renderExistingSlot(existing);
+  }
+  for (const [fname, file] of Object.entries(staged[slug] || {})) {
+    if (p.missingSlots.includes(fname)) continue; // already rendered above as filled slot
+    slotsHtml += renderSlot(fname, file, "new-slot");
+  }
+
+  main.innerHTML = `
+    <div id="detail-card">
+      <h2>${p.title}</h2>
+      <div class="hint">${p.date || ""} · content/posts/${slug}/index.md</div>
+
+      <div class="field-row">
+        <label>Images (drag a photo onto a dashed box to fill a missing slot, or use "add new photo" below)</label>
+        <div class="slot-grid" id="slot-grid">${slotsHtml}</div>
+      </div>
+
+      <div id="new-drop">+ Drag a new photo here to add it (not tied to an existing slot)</div>
+
+      <div class="field-row">
+        ${images.length === 0 ? '<span class="hint">No images yet — drag photos above.</span>' : ""}
+      </div>
+
+      ${images.length === 1 ? `
+      <div class="field-row">
+        <label><input type="checkbox" id="remove-dupe-cb" ${removeDupe[slug] !== false ? "checked" : ""}>
+        Remove the duplicate inline copy of the cover photo from the body text (recommended when it's the only photo)</label>
+      </div>` : ""}
+
+      <div class="field-row">
+        <label>Body preview (read-only)</label>
+        <textarea class="body-preview" readonly>${p.body.trim()}</textarea>
+      </div>
+
+      <div id="save-row">
+        <button id="save-btn">Save &amp; commit to GitHub</button>
+        <button class="secondary" id="next-btn">Next post needing photos →</button>
+        <span id="save-status" class="hint"></span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("new-drop").addEventListener("dragover", e => { e.preventDefault(); e.currentTarget.classList.add("dragover"); });
+  document.getElementById("new-drop").addEventListener("dragleave", e => e.currentTarget.classList.remove("dragover"));
+  document.getElementById("new-drop").addEventListener("drop", e => {
+    e.preventDefault(); e.currentTarget.classList.remove("dragover");
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    let name = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const used = new Set([...p.realImages, ...Object.keys(staged[slug]||{})]);
+    let candidate = name, n = 1;
+    while (used.has(candidate)) { candidate = name.replace(/(\.[^.]+)$/, `-${n}$1`); n++; }
+    staged[slug][candidate] = file;
+    if (!coverChoice[slug]) coverChoice[slug] = candidate;
+    renderDetail();
+  });
+
+  document.querySelectorAll(".slot[data-missing]").forEach(el => {
+    const missing = el.dataset.missing;
+    el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("dragover"); });
+    el.addEventListener("dragleave", () => el.classList.remove("dragover"));
+    el.addEventListener("drop", e => {
+      e.preventDefault(); el.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      staged[slug][missing] = file;
+      if (!coverChoice[slug]) coverChoice[slug] = missing;
+      renderDetail();
+    });
+  });
+
+  document.querySelectorAll("input[name=cover-radio]").forEach(r => {
+    r.addEventListener("change", e => { coverChoice[slug] = e.target.value || null; });
+  });
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const fname = e.currentTarget.dataset.fname;
+      delete staged[slug][fname];
+      if (coverChoice[slug] === fname) coverChoice[slug] = null;
+      renderDetail();
+    });
+  });
+  const dupeCb = document.getElementById("remove-dupe-cb");
+  if (dupeCb) dupeCb.addEventListener("change", e => { removeDupe[slug] = e.target.checked; });
+
+  document.getElementById("save-btn").addEventListener("click", () => savePost(slug));
+  document.getElementById("next-btn").addEventListener("click", nextNeedy);
+}
+
+function renderSlot(filename, file, cls) {
+  const slug = activeSlug;
+  const preview = file ? URL.createObjectURL(file) : null;
+  const checked = coverChoice[slug] === filename ? "checked" : "";
+  return `<div class="slot ${file ? "filled" : ""}" data-missing="${filename}">
+    ${file ? `<button class="remove-btn" data-fname="${filename}">×</button>` : ""}
+    ${preview ? `<img src="${preview}">` : `<div style="height:100px;display:flex;align-items:center;justify-content:center;">drop photo for<br>${filename}</div>`}
+    <div class="fname">${filename}</div>
+    ${file ? `<div class="cover-radio"><label><input type="radio" name="cover-radio" value="${filename}" ${checked}> cover</label></div>` : ""}
+  </div>`;
+}
+function renderExistingSlot(filename) {
+  const slug = activeSlug;
+  const checked = coverChoice[slug] === filename ? "checked" : "";
+  return `<div class="slot filled">
+    <img src="${RAW}/content/posts/${slug}/${filename}">
+    <div class="fname">${filename}</div>
+    <div class="cover-radio"><label><input type="radio" name="cover-radio" value="${filename}" ${checked}> cover</label></div>
+  </div>`;
+}
+
+function nextNeedy() {
+  const all = Object.values(posts).sort((a,b) => (a.date||"").localeCompare(b.date||""));
+  const idx = all.findIndex(p => p.slug === activeSlug);
+  for (let i = idx + 1; i < all.length; i++) {
+    if (all[i].realImages.length === 0 && Object.keys(staged[all[i].slug]||{}).length === 0) {
+      selectPost(all[i].slug); return;
+    }
+  }
+  for (const p of all) {
+    if (p.realImages.length === 0 && Object.keys(staged[p.slug]||{}).length === 0) { selectPost(p.slug); return; }
+  }
+  alert("No more posts need photos!");
+}
+
+function buildNewContent(p, coverFile, doRemoveDupe) {
+  let fm = p.fm.replace(/\n*$/, "");
+  fm = fm.replace(/\n*\[cover\][\s\S]*$/, "").replace(/\n*$/, "");
+  if (coverFile) {
+    fm += `\n\n[cover]\n  image = "${coverFile}"\n  relative = true\n`;
+  } else {
+    fm += "\n";
+  }
+  let body = p.body;
+  if (doRemoveDupe && coverFile) {
+    const re = new RegExp("!\\[[^\\]]*\\]\\(" + escapeRegex(coverFile) + "\\)\\s*");
+    body = body.replace(re, "");
+    body = body.replace(/^\n*/, "\n\n");
+  }
+  return "+++" + fm + "+++" + body;
+}
+
+async function savePost(slug) {
+  const p = posts[slug];
+  const st = document.getElementById("save-status");
+  const btn = document.getElementById("save-btn");
+  btn.disabled = true;
+  st.textContent = "Saving…";
+  try {
+    const filesToUpload = staged[slug] || {};
+    const coverFile = coverChoice[slug];
+    const doRemoveDupe = document.getElementById("remove-dupe-cb")
+      ? document.getElementById("remove-dupe-cb").checked
+      : false;
+
+    // refresh ref/tree to avoid stale-sha conflicts
+    const ref = await gh(`/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`);
+    const baseCommitSha = ref.object.sha;
+    const baseCommit = await gh(`/repos/${OWNER}/${REPO}/git/commits/${baseCommitSha}`);
+    const baseTreeSha = baseCommit.tree.sha;
+
+    const treeEntries = [];
+    for (const [fname, file] of Object.entries(filesToUpload)) {
+      st.textContent = `Uploading ${fname}…`;
+      const b64 = await fileToB64(file);
+      const blob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
+        method: "POST", body: JSON.stringify({ content: b64, encoding: "base64" })
+      });
+      treeEntries.push({ path: `content/posts/${slug}/${fname}`, mode: "100644", type: "blob", sha: blob.sha });
+    }
+
+    const newContent = buildNewContent(p, coverFile, doRemoveDupe);
+    const indexBlob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
+      method: "POST", body: JSON.stringify({ content: newContent, encoding: "utf-8" })
+    });
+    treeEntries.push({ path: `content/posts/${slug}/index.md`, mode: "100644", type: "blob", sha: indexBlob.sha });
+
+    st.textContent = "Creating commit…";
+    const newTree = await gh(`/repos/${OWNER}/${REPO}/git/trees`, {
+      method: "POST", body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries })
+    });
+    const commit = await gh(`/repos/${OWNER}/${REPO}/git/commits`, {
+      method: "POST", body: JSON.stringify({
+        message: `Add photos to ${slug}`, tree: newTree.sha, parents: [baseCommitSha]
+      })
+    });
+    await gh(`/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`, {
+      method: "PATCH", body: JSON.stringify({ sha: commit.sha })
+    });
+
+    // update local model
+    for (const fname of Object.keys(filesToUpload)) {
+      p.files[fname] = true;
+      if (!p.realImages.includes(fname)) p.realImages.push(fname);
+      p.missingSlots = p.missingSlots.filter(m => m !== fname);
+    }
+    p.hasCover = !!coverFile;
+    p.coverImage = coverFile;
+    const reparsed = parseFrontMatter(newContent);
+    p.fm = reparsed.fm; p.body = reparsed.body; p.rawContent = newContent;
+    staged[slug] = {};
+
+    st.textContent = "Saved ✓";
+    renderList();
+    setTimeout(() => nextNeedy(), 600);
+  } catch (e) {
+    st.textContent = "Error: " + e.message;
+    console.error(e);
+  }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
