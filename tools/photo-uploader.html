@@ -54,6 +54,7 @@
   }
   .badge.needs { background: #f3d3d3; color: #7a2020; }
   .badge.has { background: #d3e8d3; color: #1f5c1f; }
+  .badge.broken { background: #fce0b8; color: #8a4b00; }
   .badge.cover { background: #d3d8f3; color: #26307a; }
   #detail-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; max-width: 900px;
@@ -107,7 +108,8 @@
     <input type="text" id="post-search" placeholder="Search posts…">
     <div id="filter-row">
       <label><input type="checkbox" id="filter-needs" checked> Needs photos</label>
-      <label><input type="checkbox" id="filter-has"> Has photos</label>
+      <label><input type="checkbox" id="filter-broken" checked> Broken refs</label>
+      <label><input type="checkbox" id="filter-complete"> Complete</label>
     </div>
     <div class="pad" style="padding-top:0;font-size:0.8rem;color:var(--muted)" id="counts"></div>
   </div>
@@ -294,32 +296,39 @@ function setStatus(msg) { document.getElementById("status").textContent = msg; }
 function renderList() {
   const q = document.getElementById("post-search").value.toLowerCase();
   const wantNeeds = document.getElementById("filter-needs").checked;
-  const wantHas = document.getElementById("filter-has").checked;
+  const wantBroken = document.getElementById("filter-broken").checked;
+  const wantComplete = document.getElementById("filter-complete").checked;
   const all = Object.values(posts).sort((a,b) => (a.date||"").localeCompare(b.date||""));
   const list = document.getElementById("post-list");
   list.innerHTML = "";
-  let nNeeds = 0, nHas = 0;
+  let nNeeds = 0, nBroken = 0, nComplete = 0;
   for (const p of all) {
     const needs = p.realImages.length === 0;
-    if (needs) nNeeds++; else nHas++;
-    if (needs && !wantNeeds) continue;
-    if (!needs && !wantHas) continue;
+    const broken = p.missingSlots.length > 0;
+    const complete = !needs && !broken;
+    if (needs) nNeeds++;
+    if (broken) nBroken++;
+    if (complete) nComplete++;
+    const matches = (needs && wantNeeds) || (broken && wantBroken) || (complete && wantComplete);
+    if (!matches) continue;
     if (q && !p.title.toLowerCase().includes(q) && !p.slug.includes(q)) continue;
     const row = document.createElement("div");
     row.className = "post-row" + (p.slug === activeSlug ? " active" : "");
     row.innerHTML = `<div class="title">${p.title}</div>
       <div class="meta">${p.date || ""}
       <span class="badge ${needs ? "needs" : "has"}">${p.realImages.length} photo${p.realImages.length===1?"":"s"}</span>
+      ${broken ? `<span class="badge broken">${p.missingSlots.length} broken</span>` : ""}
       ${p.hasCover ? '<span class="badge cover">cover set</span>' : ""}</div>`;
     row.onclick = () => selectPost(p.slug);
     list.appendChild(row);
   }
-  document.getElementById("counts").textContent = `${nNeeds} need photos · ${nHas} have photos · ${all.length} total`;
+  document.getElementById("counts").textContent = `${nNeeds} need photos · ${nBroken} broken refs · ${nComplete} complete · ${all.length} total`;
 }
 
 document.getElementById("post-search").addEventListener("input", renderList);
 document.getElementById("filter-needs").addEventListener("change", renderList);
-document.getElementById("filter-has").addEventListener("change", renderList);
+document.getElementById("filter-broken").addEventListener("change", renderList);
+document.getElementById("filter-complete").addEventListener("change", renderList);
 document.getElementById("connect-btn").addEventListener("click", connect);
 
 function selectPost(slug) {
@@ -466,16 +475,18 @@ function renderExistingSlot(filename) {
   </div>`;
 }
 
+function needsAttention(p) {
+  return (p.realImages.length === 0 || p.missingSlots.length > 0) && Object.keys(staged[p.slug]||{}).length === 0;
+}
+
 function nextNeedy() {
   const all = Object.values(posts).sort((a,b) => (a.date||"").localeCompare(b.date||""));
   const idx = all.findIndex(p => p.slug === activeSlug);
   for (let i = idx + 1; i < all.length; i++) {
-    if (all[i].realImages.length === 0 && Object.keys(staged[all[i].slug]||{}).length === 0) {
-      selectPost(all[i].slug); return;
-    }
+    if (needsAttention(all[i])) { selectPost(all[i].slug); return; }
   }
   for (const p of all) {
-    if (p.realImages.length === 0 && Object.keys(staged[p.slug]||{}).length === 0) { selectPost(p.slug); return; }
+    if (needsAttention(p)) { selectPost(p.slug); return; }
   }
   alert("No more posts need photos!");
 }
