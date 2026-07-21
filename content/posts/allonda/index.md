@@ -13,10 +13,10 @@ tags = ["Family", "Food", "Friends"]
 
 ![risotto (aka chicken wing bokeh)](image-04.jpg)
 
-Alastair and Jacqui were once "the church sound guy and his worship singer wife" to me, little more than strangers. In fact the first real conversation I had with Alastair went something like [...]
+Alastair and Jacqui were once "the church sound guy and his worship singer wife" to me, little more than strangers. In fact the first real conversation I had with Alastair went something like  this:
 
 *Alastair, standing in front of me, a microphone stand between us*: "Sing louder."\
 *Me*: "I can't."\
 *Alastair*: *\*sigh\**
 
-Slowly we became good friends, and now ten years later, Alastair and Jacqui are as close to my heart as family. They invited us over for dinner this past Saturday evening. The meal Alastair cooked[...]
+Slowly we became good friends, and now ten years later, Alastair and Jacqui are as close to my heart as family. They invited us over for dinner this past Saturday evening. The meal Alastair cooked was just incredibly delicious and satisfying, and our conversation was comfortable, as it should be between old friends. Isn’t it a wonder and a gift that today’s stranger can become a sister or brother ten years on?
