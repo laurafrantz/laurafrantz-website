@@ -3,13 +3,15 @@ title = "ocean view in november"
 date = 2020-01-25
 draft = false
 tags = ["Travel"]
+
+[cover]
+  image = "image-03.jpg"
+  relative = true
 +++
 
 ![](image-01.jpg)
 
 ![](image-02.jpg)
-
-![](image-03.jpg)
 
 ![](image-04.jpg)
 
