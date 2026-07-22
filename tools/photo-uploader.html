@@ -69,10 +69,13 @@
   .slot img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 4px; }
   .slot .fname { font-family: monospace; font-size: 0.7rem; word-break: break-all; }
   .slot .cover-radio { margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-  .slot .remove-btn {
+  .slot .remove-btn, .slot .remove-existing-btn {
     position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: #fff; border: none;
     border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
   }
+  .slot .skip-slot { margin-top: 4px; }
+  .slot .skip-slot a { color: var(--danger); cursor: pointer; font-size: 0.68rem; text-decoration: underline; }
+  .removed-row a { color: var(--accent); cursor: pointer; margin-right: 10px; text-decoration: underline; }
   #new-drop {
     border: 2px dashed var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;
     color: var(--muted); font-size: 0.85rem; margin: 1rem 0; cursor: pointer;
@@ -144,6 +147,7 @@ let activeSlug = null;
 let staged = {};       // per-slug staged uploads: slug -> { filename: File }
 let coverChoice = {};  // slug -> chosen cover filename or null
 let removeDupe = {};   // slug -> bool
+let removedFiles = {}; // slug -> Set of filenames removed (existing photo or missing/broken slot) pending save
 
 function gh(path, opts = {}) {
   return fetch(API + path, {
@@ -341,7 +345,8 @@ function selectPost(slug) {
 
 function allImagesForPost(slug) {
   const p = posts[slug];
-  const existing = p.realImages.map(f => ({ filename: f, kind: "existing" }));
+  const removed = removedFiles[slug] || new Set();
+  const existing = p.realImages.filter(f => !removed.has(f)).map(f => ({ filename: f, kind: "existing" }));
   const stagedList = Object.keys(staged[slug] || {}).map(f => ({ filename: f, kind: "staged" }));
   return [...existing, ...stagedList];
 }
@@ -352,19 +357,27 @@ function coverHasInlineRef(p, coverFile) {
   return re.test(p.body);
 }
 
+function removeInlineRef(body, filename) {
+  const re = new RegExp("\\n*!\\[[^\\]]*\\]\\(" + escapeRegex(filename) + "\\)\\n*", "g");
+  return body.replace(re, "\n\n");
+}
+
 function renderDetail() {
   const slug = activeSlug;
   const p = posts[slug];
   const main = document.getElementById("main");
   const images = allImagesForPost(slug);
   const showDupeOption = coverHasInlineRef(p, coverChoice[slug]);
+  const removed = removedFiles[slug] || new Set();
+  const visibleMissing = p.missingSlots.filter(f => !removed.has(f));
+  const visibleExisting = p.realImages.filter(f => !removed.has(f));
 
   let slotsHtml = "";
-  for (const missing of p.missingSlots) {
+  for (const missing of visibleMissing) {
     const s = (staged[slug] || {})[missing];
     slotsHtml += renderSlot(missing, s, "slot");
   }
-  for (const existing of p.realImages) {
+  for (const existing of visibleExisting) {
     slotsHtml += renderExistingSlot(existing);
   }
   for (const [fname, file] of Object.entries(staged[slug] || {})) {
@@ -378,15 +391,21 @@ function renderDetail() {
       <div class="hint">${p.date || ""} · content/posts/${slug}/index.md</div>
 
       <div class="field-row">
-        <label>Images (drag a photo onto a dashed box to fill a missing slot, or use "add new photo" below)</label>
+        <label>Images (drag a photo onto a dashed box to fill a missing slot, or use "add new photo" below. Click × to remove a photo, or "remove this photo from post" to drop a slot entirely)</label>
         <div class="slot-grid" id="slot-grid">${slotsHtml}</div>
       </div>
 
-      <div id="new-drop">+ Drag a new photo here to add it (not tied to an existing slot)</div>
+      <div id="new-drop">+ Drag one or more new photos here to add them (not tied to an existing slot)</div>
 
       <div class="field-row">
         ${images.length === 0 ? '<span class="hint">No images yet — drag photos above.</span>' : ""}
       </div>
+
+      ${removed.size ? `
+      <div class="field-row removed-row">
+        <label>Removed (not saved yet)</label>
+        ${[...removed].map(f => `<a href="#" data-restore="${f}">↺ restore ${f}</a>`).join(" ")}
+      </div>` : ""}
 
       ${showDupeOption ? `
       <div class="field-row">
@@ -411,14 +430,17 @@ function renderDetail() {
   document.getElementById("new-drop").addEventListener("dragleave", e => e.currentTarget.classList.remove("dragover"));
   document.getElementById("new-drop").addEventListener("drop", e => {
     e.preventDefault(); e.currentTarget.classList.remove("dragover");
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-    let name = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
     const used = new Set([...p.realImages, ...Object.keys(staged[slug]||{})]);
-    let candidate = name, n = 1;
-    while (used.has(candidate)) { candidate = name.replace(/(\.[^.]+)$/, `-${n}$1`); n++; }
-    staged[slug][candidate] = file;
-    if (!coverChoice[slug]) coverChoice[slug] = candidate;
+    for (const file of files) {
+      let name = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+      let candidate = name, n = 1;
+      while (used.has(candidate)) { candidate = name.replace(/(\.[^.]+)$/, `-${n}$1`); n++; }
+      used.add(candidate);
+      staged[slug][candidate] = file;
+      if (!coverChoice[slug]) coverChoice[slug] = candidate;
+    }
     renderDetail();
   });
 
@@ -447,6 +469,35 @@ function renderDetail() {
       renderDetail();
     });
   });
+  document.querySelectorAll(".remove-existing-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const fname = e.currentTarget.dataset.fname;
+      removedFiles[slug] = removedFiles[slug] || new Set();
+      removedFiles[slug].add(fname);
+      delete staged[slug][fname];
+      if (coverChoice[slug] === fname) coverChoice[slug] = null;
+      renderDetail();
+    });
+  });
+  document.querySelectorAll("[data-skip]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const fname = e.currentTarget.dataset.skip;
+      removedFiles[slug] = removedFiles[slug] || new Set();
+      removedFiles[slug].add(fname);
+      delete staged[slug][fname];
+      if (coverChoice[slug] === fname) coverChoice[slug] = null;
+      renderDetail();
+    });
+  });
+  document.querySelectorAll("[data-restore]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const fname = e.currentTarget.dataset.restore;
+      if (removedFiles[slug]) removedFiles[slug].delete(fname);
+      renderDetail();
+    });
+  });
   const dupeCb = document.getElementById("remove-dupe-cb");
   if (dupeCb) dupeCb.addEventListener("change", e => { removeDupe[slug] = e.target.checked; });
 
@@ -463,12 +514,14 @@ function renderSlot(filename, file, cls) {
     ${preview ? `<img src="${preview}">` : `<div style="height:100px;display:flex;align-items:center;justify-content:center;">drop photo for<br>${filename}</div>`}
     <div class="fname">${filename}</div>
     ${file ? `<div class="cover-radio"><label><input type="radio" name="cover-radio" value="${filename}" ${checked}> cover</label></div>` : ""}
+    ${cls === "slot" ? `<div class="skip-slot"><a href="#" data-skip="${filename}">remove this photo from post</a></div>` : ""}
   </div>`;
 }
 function renderExistingSlot(filename) {
   const slug = activeSlug;
   const checked = coverChoice[slug] === filename ? "checked" : "";
   return `<div class="slot filled">
+    <button class="remove-existing-btn" data-fname="${filename}" title="Remove this photo">×</button>
     <img src="${RAW}/content/posts/${slug}/${filename}">
     <div class="fname">${filename}</div>
     <div class="cover-radio"><label><input type="radio" name="cover-radio" value="${filename}" ${checked}> cover</label></div>
@@ -476,7 +529,8 @@ function renderExistingSlot(filename) {
 }
 
 function needsAttention(p) {
-  return (p.realImages.length === 0 || p.missingSlots.length > 0) && Object.keys(staged[p.slug]||{}).length === 0;
+  const untouched = Object.keys(staged[p.slug]||{}).length === 0 && (removedFiles[p.slug]||new Set()).size === 0;
+  return (p.realImages.length === 0 || p.missingSlots.length > 0) && untouched;
 }
 
 function nextNeedy() {
@@ -491,7 +545,7 @@ function nextNeedy() {
   alert("No more posts need photos!");
 }
 
-function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles) {
+function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedFilenames) {
   let fm = p.fm.replace(/\n*$/, "");
   fm = fm.replace(/\n*\[cover\][\s\S]*$/, "").replace(/\n*$/, "");
   if (coverFile) {
@@ -500,6 +554,12 @@ function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles) {
     fm += "\n";
   }
   let body = p.body;
+
+  // Slots the user removed (existing photo deleted, or a missing/broken reference
+  // skipped) no longer belong in the body at all.
+  for (const f of (removedFilenames || [])) {
+    body = removeInlineRef(body, f);
+  }
 
   // Photos dropped on "add new photo" (not tied to an existing missing slot) have no
   // inline reference yet. Add one for each, unless it's the cover (cover-only, no
@@ -529,6 +589,12 @@ async function savePost(slug) {
     const doRemoveDupe = document.getElementById("remove-dupe-cb")
       ? document.getElementById("remove-dupe-cb").checked
       : false;
+    const removedSet = removedFiles[slug] || new Set();
+    const removedList = [...removedSet];
+    // Only actually-uploaded files need a tree deletion; a removed missing/broken
+    // slot never had a file in the repo to begin with. If the same filename was
+    // also re-staged (replaced), the new upload wins and it's not deleted.
+    const filesToDelete = removedList.filter(f => p.files[f] && !filesToUpload[f]);
 
     // refresh ref/tree to avoid stale-sha conflicts
     const ref = await gh(`/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`);
@@ -545,9 +611,12 @@ async function savePost(slug) {
       });
       treeEntries.push({ path: `content/posts/${slug}/${fname}`, mode: "100644", type: "blob", sha: blob.sha });
     }
+    for (const fname of filesToDelete) {
+      treeEntries.push({ path: `content/posts/${slug}/${fname}`, mode: "100644", type: "blob", sha: null });
+    }
 
     const newlyAddedFiles = Object.keys(filesToUpload).filter(f => !p.missingSlots.includes(f));
-    const newContent = buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles);
+    const newContent = buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedList);
     const indexBlob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
       method: "POST", body: JSON.stringify({ content: newContent, encoding: "utf-8" })
     });
@@ -572,11 +641,19 @@ async function savePost(slug) {
       if (!p.realImages.includes(fname)) p.realImages.push(fname);
       p.missingSlots = p.missingSlots.filter(m => m !== fname);
     }
+    for (const fname of filesToDelete) {
+      delete p.files[fname];
+      p.realImages = p.realImages.filter(f => f !== fname);
+    }
+    // every removed filename (whether a deleted real photo or a skipped broken
+    // slot) no longer has a body reference, so it drops out of missingSlots too
+    p.missingSlots = p.missingSlots.filter(m => !removedSet.has(m));
     p.hasCover = !!coverFile;
     p.coverImage = coverFile;
     const reparsed = parseFrontMatter(newContent);
     p.fm = reparsed.fm; p.body = reparsed.body; p.rawContent = newContent;
     staged[slug] = {};
+    removedFiles[slug] = new Set();
 
     st.textContent = "Saved ✓";
     renderList();
