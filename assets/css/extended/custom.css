@@ -33,6 +33,7 @@ h1, h2, h3, h4, h5, h6,
 .post-tags,
 .breadcrumbs {
     font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
+    letter-spacing: normal;
 }
 
 /* ---- "prev"/"next" post-nav: lowercase (overrides theme's uppercase),
