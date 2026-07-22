@@ -5,7 +5,7 @@ draft = false
 tags = ["Around Town", "Outside"]
 
 [cover]
-  image = "signs_3653768187_o.jpg"
+  image = "bridge_3654424696_o.jpg"
   relative = true
 +++
 
