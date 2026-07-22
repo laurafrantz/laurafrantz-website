@@ -36,9 +36,15 @@ h1, h2, h3, h4, h5, h6,
 .archive-title,
 .logo a,
 #menu a,
-.post-meta,
-.entry-footer,
 .post-tags {
+    font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;
+}
+
+/* ---- "prev"/"next" post-nav labels: lowercase, Fraunces (overrides theme's
+   uppercase "PREV"/"NEXT" styling) ---- */
+.paginav .title {
+    text-transform: lowercase;
     font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
     font-optical-sizing: auto;
 }
