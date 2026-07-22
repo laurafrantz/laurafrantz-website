@@ -3,6 +3,10 @@ title = "yellow eye stuebens"
 date = 2012-08-22
 draft = true
 tags = ["Food", "Thoughts"]
+
+[cover]
+  image = "yellow-eye-stuebens_7827494716_o.jpg"
+  relative = true
 +++
 
 ![yellow eye stuebens](image-01.jpg)
