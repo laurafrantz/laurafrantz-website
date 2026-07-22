@@ -3,9 +3,11 @@ title = "i said yes"
 date = 2009-09-13
 draft = false
 tags = ["Crafting", "Family", "Home", "Outside"]
-+++
 
-![sticks + fabric + staple gun = tee pees_3917011224_o](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 It was hard work. I had to lift heavy pine branches over my head to finish the lean-to, and while I held still to staple the sides of the tee pees, the mosquitoes nearly ate my face off. In fact, one bit me on the left side of my lower lip, and I have been doing dead-on Silvester Stallone impressions all afternoon. *Adriaaaaaaan!*
 
