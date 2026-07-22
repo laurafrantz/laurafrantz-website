@@ -5,7 +5,7 @@ draft = false
 tags = ["Home"]
 
 [cover]
-  image = "image-01.jpg"
+  image = "image-03.jpg"
   relative = true
 +++
 
