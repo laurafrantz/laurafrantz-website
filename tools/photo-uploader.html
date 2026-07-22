@@ -197,6 +197,32 @@ function fileToB64(file) {
 function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 function isImageFile(name) { return /\.(jpe?g|png|webp|gif)$/i.test(name); }
 
+// Phone photos carry an EXIF orientation flag (e.g. "rotate 90") rather than
+// storing pixels upright. Browsers respect that flag when *displaying* the
+// original file, which is why a dropped photo can look fine in this tool's
+// own preview -- but Hugo's build-time resize only sees the raw pixel grid
+// and drops the flag, so the published site ends up sideways/upside down.
+// Bake the correct rotation into the pixels themselves (via canvas, which
+// always applies EXIF orientation when decoding) so every downstream step,
+// including Hugo, gets an already-upright image.
+async function normalizeOrientation(file) {
+  if (!/^image\/jpe?g$/.test(file.type) && !/\.jpe?g$/i.test(file.name)) return file;
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.92));
+    if (!blob) return file;
+    return new File([blob], file.name, { type: "image/jpeg" });
+  } catch (e) {
+    console.warn("orientation normalize failed, uploading original file", file.name, e);
+    return file;
+  }
+}
+
 function parseFrontMatter(txt) {
   const m = txt.match(/^\+\+\+([\s\S]*?)\+\+\+([\s\S]*)$/);
   if (!m) return null;
@@ -428,12 +454,13 @@ function renderDetail() {
 
   document.getElementById("new-drop").addEventListener("dragover", e => { e.preventDefault(); e.currentTarget.classList.add("dragover"); });
   document.getElementById("new-drop").addEventListener("dragleave", e => e.currentTarget.classList.remove("dragover"));
-  document.getElementById("new-drop").addEventListener("drop", e => {
+  document.getElementById("new-drop").addEventListener("drop", async e => {
     e.preventDefault(); e.currentTarget.classList.remove("dragover");
     const files = Array.from(e.dataTransfer.files || []);
     if (!files.length) return;
     const used = new Set([...p.realImages, ...Object.keys(staged[slug]||{})]);
-    for (const file of files) {
+    for (const rawFile of files) {
+      const file = await normalizeOrientation(rawFile);
       let name = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
       let candidate = name, n = 1;
       while (used.has(candidate)) { candidate = name.replace(/(\.[^.]+)$/, `-${n}$1`); n++; }
@@ -448,10 +475,11 @@ function renderDetail() {
     const missing = el.dataset.missing;
     el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("dragover"); });
     el.addEventListener("dragleave", () => el.classList.remove("dragover"));
-    el.addEventListener("drop", e => {
+    el.addEventListener("drop", async e => {
       e.preventDefault(); el.classList.remove("dragover");
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
+      const rawFile = e.dataTransfer.files[0];
+      if (!rawFile) return;
+      const file = await normalizeOrientation(rawFile);
       staged[slug][missing] = file;
       if (!coverChoice[slug]) coverChoice[slug] = missing;
       renderDetail();
