@@ -29,7 +29,8 @@ h1, h2, h3, h4, h5, h6,
 .archive-title,
 .logo a,
 #menu a,
-.post-tags {
+.post-tags,
+.breadcrumbs {
     font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
     font-optical-sizing: auto;
 }
