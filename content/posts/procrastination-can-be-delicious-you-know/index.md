@@ -3,6 +3,10 @@ title = "procrastination can be delicious, you know"
 date = 2010-01-10
 draft = false
 tags = ["Food"]
+
+[cover]
+  image = "4262951174_1c45474b85_o.jpg"
+  relative = true
 +++
 
 ![homemade hostess cupcakes](image-01.jpg)
