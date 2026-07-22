@@ -1,24 +1,17 @@
-/* ---- Web fonts: Lato (body/nav/UI) + Fraunces (headings), self-hosted ---- */
+/* ---- Web fonts: Open Sans (body/metadata/UI) + Fraunces (headings), self-hosted ---- */
 @font-face {
-    font-family: "Lato";
+    font-family: "Open Sans";
     font-style: normal;
-    font-weight: 400;
+    font-weight: 300 800;
     font-display: swap;
-    src: url("/fonts/lato-400.woff2") format("woff2");
+    src: url("/fonts/opensans-var.woff2") format("woff2");
 }
 @font-face {
-    font-family: "Lato";
+    font-family: "Open Sans";
     font-style: italic;
     font-weight: 400;
     font-display: swap;
-    src: url("/fonts/lato-400i.woff2") format("woff2");
-}
-@font-face {
-    font-family: "Lato";
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url("/fonts/lato-700.woff2") format("woff2");
+    src: url("/fonts/opensans-400i.woff2") format("woff2");
 }
 @font-face {
     font-family: "Fraunces Variable";
@@ -28,7 +21,7 @@
     src: url("/fonts/fraunces-var.woff2") format("woff2");
 }
 body {
-    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 h1, h2, h3, h4, h5, h6,
 .post-title,
@@ -41,13 +34,14 @@ h1, h2, h3, h4, h5, h6,
     font-optical-sizing: auto;
 }
 
-/* ---- "Prev"/"Next" post-nav: sentence case (overrides theme's uppercase),
-   Fraunces, sized to match the tag pills. The adjacent post's name (the
-   second, untitled span) gets Fraunces too. ---- */
+/* ---- "prev"/"next" post-nav: lowercase (overrides theme's uppercase),
+   Fraunces, black, slightly larger than the tag pills. The adjacent post's
+   name (the second, untitled span) gets Fraunces too. ---- */
 .paginav .title {
-    text-transform: none;
+    text-transform: lowercase;
     letter-spacing: normal;
-    font-size: 14px;
+    font-size: 16px;
+    color: var(--primary);
     font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
     font-optical-sizing: auto;
 }
