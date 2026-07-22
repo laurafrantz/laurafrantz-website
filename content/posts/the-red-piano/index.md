@@ -3,9 +3,11 @@ title = "the red piano"
 date = 2009-03-17
 draft = false
 tags = ["Family"]
-+++
 
-![red piano](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 One day, when I was about five years old, my mama found this piano on the side of the road. She recruited friends to haul it back to our falling-down farmhouse, and then just like that, we had a piano. She played it, I played it a little, and when he visited, my crazy Swedish grandfather played it a lot.
 
