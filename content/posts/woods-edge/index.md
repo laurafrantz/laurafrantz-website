@@ -3,13 +3,15 @@ title = "woods edge"
 date = 2010-11-02
 draft = false
 tags = ["Family", "Friends", "Occasions", "Outside"]
+
+[cover]
+  image = "image-03.jpg"
+  relative = true
 +++
 
 ![woodshed](image-01.jpg)
 
 ![sweetgirl](image-02.jpg)
-
-![gee-tars](image-03.jpg)
 
 ![as sure as](image-04.jpg)
 
@@ -22,3 +24,5 @@ This is Angelina’s farm. She is a former lawyer turned farm-owner. Her long, b
 We eat and laugh. The men pick up guitars and try out a tune or two. The grey mare gives rides to the little ones, circling in the pea gravel until the passing three wheeler spooks her to a standstill. The sky deepens and the barn darkens as the children take turns swinging blindly at a pinata hanging from a cross beam. One final *crack* of the broom handle and candy pours from the fatal wound onto the cement floor.
 
 The moon is round and orange. The sweet mares whinny for attention and carrots from their fences. We sit near the fire and watch the bats make laps around the horse barn, passing in front of the floodlight with each go-around. We circle little limbs and pull blanket corners down and around body edges. A flashlight hunt for a lost belonging takes place in the giant leaf pile; we hear a shout of victory and know that what was once lost is now found. Sparks fly upward.
+
+![](ancestors_5141446409_o.jpg)
