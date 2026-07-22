@@ -3,9 +3,11 @@ title = "passer domesticus"
 date = 2016-11-15
 draft = false
 tags = ["Family", "Outside"]
-+++
 
-![passer domesticus](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 While the preacher spoke of a world beyond the veil, one half of a mated pair caught his neck in a loop of nylon cord that he or his mate had worked into their nest. He parted the louvers covering the exhaust vent and launched himself through to the outside.
 
