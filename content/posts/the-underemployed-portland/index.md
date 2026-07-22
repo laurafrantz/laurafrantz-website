@@ -3,11 +3,13 @@ title = "the underemployed | portland"
 date = 2012-10-10
 draft = false
 tags = ["Travel"]
+
+[cover]
+  image = "image-02.jpg"
+  relative = true
 +++
 
 ![street \| portland](image-01.jpg)
-
-![blue man toking up \| portland](image-02.jpg)
 
 ![chess @ pioneer square \| portland](image-03.jpg)
 
