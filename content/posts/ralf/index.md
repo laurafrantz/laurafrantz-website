@@ -3,9 +3,11 @@ title = "ralf"
 date = 2009-11-13
 draft = false
 tags = ["Home"]
-+++
 
-![package](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![ralf close up with note](image-02.jpg)
 
