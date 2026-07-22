@@ -23,6 +23,21 @@ def fail(msg):
     sys.exit(1)
 
 
+def try_fetch_css(family, weight, style):
+    """Return the CSS2 response text for a given family/weight/style casing,
+    or None if that casing 404s/400s (caller tries another casing)."""
+    family_param = family.replace(" ", "+")
+    ital = "1" if style == "italic" else "0"
+    css_url = (f"https://fonts.googleapis.com/css2"
+               f"?family={family_param}:ital,wght@{ital},{weight}&display=swap")
+    req = urllib.request.Request(css_url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return resp.read().decode("utf-8")
+    except urllib.error.HTTPError:
+        return None
+
+
 def main():
     if len(sys.argv) != 5:
         fail("usage: fetch_google_font.py \"<Family Name>\" <weight> <normal|italic> <out.woff2>")
@@ -31,25 +46,22 @@ def main():
     if style not in ("normal", "italic"):
         fail(f"style must be 'normal' or 'italic', got: {style!r}")
 
+    family = family.strip()
     # Google Fonts' CSS2 API is case-sensitive on family names (e.g. "fraunces"
-    # 400s, "Fraunces" works). Title-case each word so callers can pass names
-    # in whatever casing they were typed in.
-    family = " ".join(w.capitalize() for w in family.strip().split())
-    family_param = family.replace(" ", "+")
-    ital = "1" if style == "italic" else "0"
-    css_url = (f"https://fonts.googleapis.com/css2"
-               f"?family={family_param}:ital,wght@{ital},{weight}&display=swap")
-
-    req = urllib.request.Request(css_url, headers={"User-Agent": UA})
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            css = resp.read().decode("utf-8")
-    except Exception as e:
-        fail(f"could not reach Google Fonts for family {family!r}: {e}")
-
-    if not css.strip():
-        fail(f"Google Fonts returned nothing for family {family!r} -- "
-             f"check the spelling (family names are case-sensitive on the API).")
+    # 400s, "Fraunces" works). Try the name exactly as given first -- this is
+    # what acronym-style names like "EB Garamond" need (title-casing would
+    # mangle it to "Eb Garamond", which also 400s) -- and fall back to
+    # title-casing each word for names typed in casual/lowercase.
+    title_cased = " ".join(w.capitalize() for w in family.split())
+    css = None
+    for attempt in dict.fromkeys([family, title_cased]):  # dedupe, keep order
+        css = try_fetch_css(attempt, weight, style)
+        if css is not None and css.strip():
+            family = attempt
+            break
+    else:
+        fail(f"could not find family {family!r} on Google Fonts (tried it as given "
+             f"and title-cased) -- check the spelling.")
 
     # The CSS lists one @font-face block per language subset, each preceded
     # by a comment like "/* latin */". We want the plain "latin" subset, not
