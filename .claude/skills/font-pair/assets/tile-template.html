@@ -1,0 +1,66 @@
+<title>__HEADING_FONT_NAME__ + __BODY_FONT_NAME__</title>
+<style>
+@font-face {
+  font-family: "HeadingFont";
+  font-weight: 400;
+  src: url("__HEADING_FONT_URI__") format("woff2");
+}
+@font-face {
+  font-family: "BodyFont";
+  font-weight: 400;
+  src: url("__BODY_FONT_URI__") format("woff2");
+}
+:root {
+  --bg: #f5efe3;
+  --card: #fdfaf2;
+  --border: #e7dfcd;
+  --ink: #211c17;
+  --ink-soft: #453f37;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1b1712; --card: #241f19; --border: #3a3226; --ink: #ece5d8; --ink-soft: #c9c0b2; }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1712; --card: #241f19; --border: #3a3226; --ink: #ece5d8; --ink-soft: #c9c0b2;
+}
+:root[data-theme="light"] {
+  --bg: #f5efe3; --card: #fdfaf2; --border: #e7dfcd; --ink: #211c17; --ink-soft: #453f37;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg);
+}
+.tile {
+  width: min(360px, calc(100vw - 2rem));
+  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+h1 {
+  font-family: "HeadingFont", Georgia, serif;
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  color: var(--ink);
+  text-wrap: balance;
+}
+p {
+  font-family: "BodyFont", -apple-system, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--ink-soft);
+}
+</style>
+<div class="tile">
+  <h1>__HEADING_FONT_NAME__ &amp; __BODY_FONT_NAME__</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+  tempor incididunt ut labore et dolore magna aliqua.</p>
+</div>
