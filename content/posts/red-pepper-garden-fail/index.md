@@ -3,9 +3,11 @@ title = "red pepper garden fail!"
 date = 2009-09-27
 draft = false
 tags = ["Garden"]
-+++
 
-![red pepper garden fail: the nest](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![red pepper garden fail: garlic](image-02.jpg)
 
