@@ -27,7 +27,10 @@ body {
 h1, h2, h3, h4, h5, h6,
 .post-title,
 .entry-header h1, .entry-header h2,
-.archive-title,
+.archive-title {
+    font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
+    letter-spacing: -0.01em; /* Crimson Pro sits looser than Fraunces at default spacing */
+}
 .logo a,
 #menu a,
 .post-tags,
