@@ -31,7 +31,11 @@ def main():
     if style not in ("normal", "italic"):
         fail(f"style must be 'normal' or 'italic', got: {style!r}")
 
-    family_param = family.strip().replace(" ", "+")
+    # Google Fonts' CSS2 API is case-sensitive on family names (e.g. "fraunces"
+    # 400s, "Fraunces" works). Title-case each word so callers can pass names
+    # in whatever casing they were typed in.
+    family = " ".join(w.capitalize() for w in family.strip().split())
+    family_param = family.replace(" ", "+")
     ital = "1" if style == "italic" else "0"
     css_url = (f"https://fonts.googleapis.com/css2"
                f"?family={family_param}:ital,wght@{ital},{weight}&display=swap")
