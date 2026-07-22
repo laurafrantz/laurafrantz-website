@@ -41,10 +41,16 @@ h1, h2, h3, h4, h5, h6,
     font-optical-sizing: auto;
 }
 
-/* ---- "prev"/"next" post-nav labels: lowercase, Fraunces (overrides theme's
-   uppercase "PREV"/"NEXT" styling) ---- */
+/* ---- "Prev"/"Next" post-nav: sentence case (overrides theme's uppercase),
+   Fraunces, sized to match the tag pills. The adjacent post's name (the
+   second, untitled span) gets Fraunces too. ---- */
 .paginav .title {
-    text-transform: lowercase;
+    text-transform: none;
+    font-size: 14px;
+    font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;
+}
+.paginav a > span:not(.title) {
     font-family: "Fraunces Variable", Georgia, "Times New Roman", serif;
     font-optical-sizing: auto;
 }
