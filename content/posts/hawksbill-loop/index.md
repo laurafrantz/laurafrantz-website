@@ -3,9 +3,11 @@ title = "hawksbill loop"
 date = 2019-05-01
 draft = false
 tags = ["Outside"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![](image-02.jpg)
 
