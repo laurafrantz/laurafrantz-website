@@ -24,6 +24,20 @@ body {
     font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 16px; /* theme default is 18px; smaller reads calmer/more serious */
 }
+/* ---- Metadata and post/preview body text: theme defaults still read a
+   touch large next to the smaller base size above ---- */
+.post-content {
+    font-size: 15px; /* theme default: inherits body (was 18px, then 16px) */
+}
+.entry-content {
+    font-size: 13px; /* theme default: 14px */
+}
+.post-meta {
+    font-size: 13px; /* theme default: 14px */
+}
+.entry-footer {
+    font-size: 12px; /* theme default: 13px */
+}
 h1, h2, h3, h4, h5, h6,
 .post-title,
 .entry-header h1, .entry-header h2,
