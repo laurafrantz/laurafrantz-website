@@ -1,7 +1,7 @@
 +++
 title = "original nest text"
 date = 2017-12-16
-draft = false
+draft = true
 tags = ["Thoughts"]
 +++
 
