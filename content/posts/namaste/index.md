@@ -1,6 +1,6 @@
 +++
 title = "namaste"
-date = 2017-12-16
+date = 2009-07-09
 draft = false
 tags = ["Around Town", "Homeschooling"]
 +++

@@ -1,6 +1,6 @@
 +++
 title = "shift"
-date = 2017-12-16
+date = 2009-11-04
 draft = false
 tags = ["Thoughts"]
 +++

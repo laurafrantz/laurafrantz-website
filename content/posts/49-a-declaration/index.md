@@ -1,6 +1,6 @@
 +++
 title = "49: a declaration"
-date = 2017-12-16
+date = 2009-03-15
 draft = false
 tags = ["Thoughts"]
 
