@@ -3,9 +3,11 @@ title = "in which we hunt for colour"
 date = 2009-03-23
 draft = false
 tags = ["Family", "Outside"]
-+++
 
-![yellow](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![stones](image-02.jpg)
 
