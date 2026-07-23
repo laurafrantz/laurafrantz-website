@@ -5,25 +5,9 @@ draft = false
 tags = ["Family", "Friends", "Outside", "Thoughts", "Travel"]
 
 [cover]
-  image = "image-01.jpg"
+  image = "image-08.jpg"
   relative = true
 +++
-
-![](image-01.jpg)
-
-![](image-02.jpg)
-
-![](image-03.jpg)
-
-![](image-04.jpg)
-
-![](image-05.jpg)
-
-![](image-06.jpg)
-
-![](image-07.jpg)
-
-![](image-08.jpg)
 
 I ~~want to~~ need to remember:
 
@@ -40,3 +24,15 @@ I ~~want to~~ need to remember:
 *::* linguine con le vongole *made by my former chef of a husband using clams dug from the bay with our own big and little hands. so. very. yummy.*
 
 *:: reading sonnets under blankets after the weather turned much colder*
+
+![](claw_2960744467_o.jpg)
+
+![](nut-buddha_2959705431_o.jpg)
+
+![](phone-call_2960546340_o.jpg)
+
+![](reading-on-the-dock_2959705249_o.jpg)
+
+![](new-hair_2959705205_o.jpg)
+
+![](laundry_2960545952_o.jpg)
