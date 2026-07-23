@@ -3,9 +3,11 @@ title = "varsity pizza"
 date = 2009-02-24
 draft = false
 tags = ["Around Town"]
-+++
 
-![](image-01.jpg)
+[cover]
+  image = "image-01.jpg"
+  relative = true
++++
 
 ![](image-02.jpg)
 
