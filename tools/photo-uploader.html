@@ -69,7 +69,7 @@
   .slot img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 4px; }
   .slot .fname { font-family: monospace; font-size: 0.7rem; word-break: break-all; }
   .slot .cover-radio { margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-  .slot .remove-btn, .slot .remove-existing-btn {
+  .slot .remove-btn, .slot .remove-existing-btn, .slot .remove-comment-btn {
     position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: #fff; border: none;
     border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
   }
@@ -148,6 +148,8 @@ let staged = {};       // per-slug staged uploads: slug -> { filename: File }
 let coverChoice = {};  // slug -> chosen cover filename or null
 let removeDupe = {};   // slug -> bool
 let removedFiles = {}; // slug -> Set of filenames removed (existing photo or missing/broken slot) pending save
+let commentFill = {};      // slug -> { commentSlotKey: stagedFilename } for <!-- photo: --> placeholders being filled
+let removedComments = {};  // slug -> Set of commentSlotKeys whose placeholder is being dropped entirely
 
 function gh(path, opts = {}) {
   return fetch(API + path, {
@@ -243,6 +245,35 @@ function findImageRefs(body) {
   while ((m = re.exec(body))) refs.push(m[1]);
   return refs;
 }
+// Placeholder comments left by the Blogger-import script for posts that
+// never got their photos re-added, e.g. <!-- photo: dock -- http://... -->.
+// Treated as drop slots just like a missing markdown ref, except there's no
+// filename yet to fill -- one gets invented from the dropped file's name,
+// and the comment itself is replaced with a real ![]() ref at save time.
+function findCommentSlots(body) {
+  const re = /<!--\s*photo:\s*([\s\S]*?)\s--\s([\s\S]*?)\s*-->/g;
+  let m, out = [], i = 0;
+  while ((m = re.exec(body))) {
+    out.push({ key: "c" + i, alt: m[1].trim(), src: m[2].trim(), raw: m[0] });
+    i++;
+  }
+  return out;
+}
+function escapeHtml(s) {
+  return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function removeRawOnce(body, raw) {
+  const idx = body.indexOf(raw);
+  if (idx === -1) return body;
+  const before = body.slice(0, idx).replace(/\n+$/, "");
+  const after = body.slice(idx + raw.length).replace(/^\n+/, "");
+  return before + "\n\n" + after;
+}
+function replaceRawOnce(body, raw, replacement) {
+  const idx = body.indexOf(raw);
+  if (idx === -1) return body;
+  return body.slice(0, idx) + replacement + body.slice(idx + raw.length);
+}
 
 async function connect() {
   TOKEN = document.getElementById("token-input").value.trim();
@@ -289,6 +320,7 @@ async function connect() {
             files: bySlug[slug].files,
             realImages,
             missingSlots: missing,
+            commentSlots: findCommentSlots(body),
             hasCover: hasCoverBlock(fm),
             coverImage: getCoverImage(fm),
             fm, body, rawContent: content
@@ -334,7 +366,7 @@ function renderList() {
   let nNeeds = 0, nBroken = 0, nComplete = 0;
   for (const p of all) {
     const needs = p.realImages.length === 0;
-    const broken = p.missingSlots.length > 0;
+    const broken = p.missingSlots.length > 0 || p.commentSlots.length > 0;
     const complete = !needs && !broken;
     if (needs) nNeeds++;
     if (broken) nBroken++;
@@ -347,7 +379,8 @@ function renderList() {
     row.innerHTML = `<div class="title">${p.title}</div>
       <div class="meta">${p.date || ""}
       <span class="badge ${needs ? "needs" : "has"}">${p.realImages.length} photo${p.realImages.length===1?"":"s"}</span>
-      ${broken ? `<span class="badge broken">${p.missingSlots.length} broken</span>` : ""}
+      ${p.missingSlots.length ? `<span class="badge broken">${p.missingSlots.length} broken</span>` : ""}
+      ${p.commentSlots.length ? `<span class="badge broken">${p.commentSlots.length} placeholder${p.commentSlots.length===1?"":"s"}</span>` : ""}
       ${p.hasCover ? '<span class="badge cover">cover set</span>' : ""}</div>`;
     row.onclick = () => selectPost(p.slug);
     list.appendChild(row);
@@ -364,6 +397,8 @@ document.getElementById("connect-btn").addEventListener("click", connect);
 function selectPost(slug) {
   activeSlug = slug;
   staged[slug] = staged[slug] || {};
+  commentFill[slug] = commentFill[slug] || {};
+  removedComments[slug] = removedComments[slug] || new Set();
   if (!(slug in coverChoice)) coverChoice[slug] = posts[slug].coverImage || null;
   renderList();
   renderDetail();
@@ -395,19 +430,29 @@ function renderDetail() {
   const images = allImagesForPost(slug);
   const showDupeOption = coverHasInlineRef(p, coverChoice[slug]);
   const removed = removedFiles[slug] || new Set();
+  const removedCommentSet = removedComments[slug] || new Set();
   const visibleMissing = p.missingSlots.filter(f => !removed.has(f));
   const visibleExisting = p.realImages.filter(f => !removed.has(f));
+  const visibleCommentSlots = p.commentSlots.filter(s => !removedCommentSet.has(s.key));
+  const commentFillMap = commentFill[slug] || {};
+  const commentFilledFilenames = new Set(Object.values(commentFillMap));
 
   let slotsHtml = "";
   for (const missing of visibleMissing) {
     const s = (staged[slug] || {})[missing];
     slotsHtml += renderSlot(missing, s, "slot");
   }
+  for (const cslot of visibleCommentSlots) {
+    const fname = commentFillMap[cslot.key];
+    const file = fname ? (staged[slug] || {})[fname] : null;
+    slotsHtml += renderCommentSlot(cslot, file, fname);
+  }
   for (const existing of visibleExisting) {
     slotsHtml += renderExistingSlot(existing);
   }
   for (const [fname, file] of Object.entries(staged[slug] || {})) {
     if (p.missingSlots.includes(fname)) continue; // already rendered above as filled slot
+    if (commentFilledFilenames.has(fname)) continue; // already rendered above as filled comment slot
     slotsHtml += renderSlot(fname, file, "new-slot");
   }
 
@@ -427,10 +472,14 @@ function renderDetail() {
         ${images.length === 0 ? '<span class="hint">No images yet — drag photos above.</span>' : ""}
       </div>
 
-      ${removed.size ? `
+      ${(removed.size || removedCommentSet.size) ? `
       <div class="field-row removed-row">
         <label>Removed (not saved yet)</label>
         ${[...removed].map(f => `<a href="#" data-restore="${f}">↺ restore ${f}</a>`).join(" ")}
+        ${[...removedCommentSet].map(k => {
+            const s = p.commentSlots.find(cs => cs.key === k);
+            return `<a href="#" data-restore-comment="${k}">↺ restore ${escapeHtml(s ? (s.alt || "placeholder") : k)}</a>`;
+          }).join(" ")}
       </div>` : ""}
 
       ${showDupeOption ? `
@@ -486,6 +535,26 @@ function renderDetail() {
     });
   });
 
+  document.querySelectorAll(".slot[data-comment-slot]").forEach(el => {
+    const key = el.dataset.commentSlot;
+    el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("dragover"); });
+    el.addEventListener("dragleave", () => el.classList.remove("dragover"));
+    el.addEventListener("drop", async e => {
+      e.preventDefault(); el.classList.remove("dragover");
+      const rawFile = e.dataTransfer.files[0];
+      if (!rawFile) return;
+      const file = await normalizeOrientation(rawFile);
+      const used = new Set([...p.realImages, ...Object.keys(staged[slug] || {})]);
+      let base = (rawFile.name || "photo.jpg").replace(/[^a-zA-Z0-9._-]/g, "-");
+      let candidate = base, n = 1;
+      while (used.has(candidate)) { candidate = base.replace(/(\.[^.]+)$/, `-${n}$1`); n++; }
+      staged[slug][candidate] = file;
+      commentFill[slug][key] = candidate;
+      if (!coverChoice[slug]) coverChoice[slug] = candidate;
+      renderDetail();
+    });
+  });
+
   document.querySelectorAll("input[name=cover-radio]").forEach(r => {
     r.addEventListener("change", e => { coverChoice[slug] = e.target.value || null; });
   });
@@ -526,6 +595,40 @@ function renderDetail() {
       renderDetail();
     });
   });
+  document.querySelectorAll(".remove-comment-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const key = e.currentTarget.dataset.commentFname;
+      const fname = commentFill[slug][key];
+      if (fname) {
+        delete staged[slug][fname];
+        if (coverChoice[slug] === fname) coverChoice[slug] = null;
+        delete commentFill[slug][key];
+      }
+      renderDetail();
+    });
+  });
+  document.querySelectorAll("[data-skip-comment]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const key = e.currentTarget.dataset.skipComment;
+      removedComments[slug].add(key);
+      const fname = commentFill[slug][key];
+      if (fname) {
+        delete staged[slug][fname];
+        if (coverChoice[slug] === fname) coverChoice[slug] = null;
+        delete commentFill[slug][key];
+      }
+      renderDetail();
+    });
+  });
+  document.querySelectorAll("[data-restore-comment]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const key = e.currentTarget.dataset.restoreComment;
+      removedComments[slug].delete(key);
+      renderDetail();
+    });
+  });
   const dupeCb = document.getElementById("remove-dupe-cb");
   if (dupeCb) dupeCb.addEventListener("change", e => { removeDupe[slug] = e.target.checked; });
 
@@ -545,6 +648,20 @@ function renderSlot(filename, file, cls) {
     ${cls === "slot" ? `<div class="skip-slot"><a href="#" data-skip="${filename}">remove this photo from post</a></div>` : ""}
   </div>`;
 }
+function renderCommentSlot(slot, file, fname) {
+  const slug = activeSlug;
+  const preview = file ? URL.createObjectURL(file) : null;
+  const label = slot.alt || "(no caption)";
+  const checked = fname && coverChoice[slug] === fname ? "checked" : "";
+  return `<div class="slot ${file ? "filled" : ""}" data-comment-slot="${slot.key}">
+    ${file ? `<button class="remove-comment-btn" data-comment-fname="${slot.key}">×</button>` : ""}
+    ${preview ? `<img src="${preview}">` : `<div style="height:100px;display:flex;align-items:center;justify-content:center;">drop photo for<br>${escapeHtml(label)}</div>`}
+    <div class="fname">${escapeHtml(label)}</div>
+    ${!file ? `<div class="hint"><a href="${slot.src}" target="_blank" rel="noopener">original photo ↗</a></div>` : ""}
+    ${file ? `<div class="cover-radio"><label><input type="radio" name="cover-radio" value="${fname}" ${checked}> cover</label></div>` : ""}
+    <div class="skip-slot"><a href="#" data-skip-comment="${slot.key}">remove this placeholder</a></div>
+  </div>`;
+}
 function renderExistingSlot(filename) {
   const slug = activeSlug;
   const checked = coverChoice[slug] === filename ? "checked" : "";
@@ -557,8 +674,12 @@ function renderExistingSlot(filename) {
 }
 
 function needsAttention(p) {
-  const untouched = Object.keys(staged[p.slug]||{}).length === 0 && (removedFiles[p.slug]||new Set()).size === 0;
-  return (p.realImages.length === 0 || p.missingSlots.length > 0) && untouched;
+  const slug = p.slug;
+  const untouched = Object.keys(staged[slug]||{}).length === 0
+    && (removedFiles[slug]||new Set()).size === 0
+    && Object.keys(commentFill[slug]||{}).length === 0
+    && (removedComments[slug]||new Set()).size === 0;
+  return (p.realImages.length === 0 || p.missingSlots.length > 0 || p.commentSlots.length > 0) && untouched;
 }
 
 function nextNeedy() {
@@ -573,7 +694,7 @@ function nextNeedy() {
   alert("No more posts need photos!");
 }
 
-function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedFilenames) {
+function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedFilenames, commentFillMap, removedCommentKeys) {
   let fm = p.fm.replace(/\n*$/, "");
   fm = fm.replace(/\n*\[cover\][\s\S]*$/, "").replace(/\n*$/, "");
   if (coverFile) {
@@ -589,10 +710,25 @@ function buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedFil
     body = removeInlineRef(body, f);
   }
 
-  // Photos dropped on "add new photo" (not tied to an existing missing slot) have no
-  // inline reference yet. Add one for each, unless it's the cover (cover-only, no
-  // redundant inline copy -- consistent with the dupe-removal behavior below).
-  const toAppend = (newlyAddedFiles || []).filter(f => f !== coverFile);
+  // Placeholder comments the user chose to drop entirely (no replacement photo).
+  for (const key of (removedCommentKeys || [])) {
+    const slot = (p.commentSlots || []).find(s => s.key === key);
+    if (slot) body = removeRawOnce(body, slot.raw);
+  }
+
+  // Placeholder comments filled with a dropped photo: swap the comment for a
+  // real inline ref right at that position, preserving original photo order.
+  for (const [key, fname] of Object.entries(commentFillMap || {})) {
+    const slot = (p.commentSlots || []).find(s => s.key === key);
+    if (slot) body = replaceRawOnce(body, slot.raw, `![](${fname})`);
+  }
+
+  // Photos dropped on "add new photo" (not tied to an existing missing slot or
+  // placeholder comment) have no inline reference yet. Add one for each, unless
+  // it's the cover (cover-only, no redundant inline copy -- consistent with the
+  // dupe-removal behavior below).
+  const usedForComments = new Set(Object.values(commentFillMap || {}));
+  const toAppend = (newlyAddedFiles || []).filter(f => f !== coverFile && !usedForComments.has(f));
   for (const f of toAppend) {
     body = body.trimEnd() + `\n\n![](${f})\n`;
   }
@@ -644,7 +780,9 @@ async function savePost(slug) {
     }
 
     const newlyAddedFiles = Object.keys(filesToUpload).filter(f => !p.missingSlots.includes(f));
-    const newContent = buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedList);
+    const commentFillMap = commentFill[slug] || {};
+    const removedCommentKeys = [...(removedComments[slug] || new Set())];
+    const newContent = buildNewContent(p, coverFile, doRemoveDupe, newlyAddedFiles, removedList, commentFillMap, removedCommentKeys);
     const indexBlob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
       method: "POST", body: JSON.stringify({ content: newContent, encoding: "utf-8" })
     });
@@ -680,8 +818,11 @@ async function savePost(slug) {
     p.coverImage = coverFile;
     const reparsed = parseFrontMatter(newContent);
     p.fm = reparsed.fm; p.body = reparsed.body; p.rawContent = newContent;
+    p.commentSlots = findCommentSlots(p.body);
     staged[slug] = {};
     removedFiles[slug] = new Set();
+    commentFill[slug] = {};
+    removedComments[slug] = new Set();
 
     st.textContent = "Saved ✓";
     renderList();
