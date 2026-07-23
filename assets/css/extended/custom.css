@@ -45,12 +45,17 @@ h1, h2, h3, h4, h5, h6,
     font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
     letter-spacing: -0.01em; /* Crimson Pro sits looser than Fraunces at default spacing */
 }
-.logo a,
-#menu a,
-.post-tags,
-.breadcrumbs {
+.logo a {
     font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
     letter-spacing: normal;
+}
+#menu a,
+.post-tags,
+.breadcrumbs,
+.terms-tags {
+    font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
+    letter-spacing: normal;
+    text-transform: lowercase;
 }
 
 /* ---- "prev"/"next" post-nav: lowercase (overrides theme's uppercase),
