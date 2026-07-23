@@ -5,7 +5,7 @@ draft = false
 tags = ["Family", "Friends", "Outside", "Travel"]
 
 [cover]
-  image = "image-09.jpg"
+  image = "image-07.jpg"
   relative = true
 +++
 
@@ -20,8 +20,6 @@ tags = ["Family", "Friends", "Outside", "Travel"]
 ![](image-05.jpg)
 
 ![](image-06.jpg)
-
-![](image-07.jpg)
 
 ![](image-08.jpg)
 
