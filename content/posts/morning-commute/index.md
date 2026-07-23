@@ -3,13 +3,15 @@ title = "morning commute"
 date = 2012-08-27
 draft = false
 tags = ["Around Town"]
+
+[cover]
+  image = "image-03.jpg"
+  relative = true
 +++
 
 ![bus fare](image-01.jpg)
 
 ![taxi](image-02.jpg)
-
-![metrofleur](image-03.jpg)
 
 ![morning paper](image-04.jpg)
 
