@@ -3,6 +3,10 @@ title = "the heckled hen"
 date = 2009-02-22
 draft = false
 tags = ["Around Town"]
+
+[cover]
+  image = "image-04.jpg"
+  relative = true
 +++
 
 ![the heckled hen, manlius, ny](image-01.jpg)
@@ -11,4 +15,3 @@ tags = ["Around Town"]
 
 ![glasses \| the heckled hen, manlius, ny](image-03.jpg)
 
-![mirror \| the heckled hen, manlius, ny](image-04.jpg)
